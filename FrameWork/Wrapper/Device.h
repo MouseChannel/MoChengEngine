@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:15:12
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-13 13:18:13
+ * @LastEditTime: 2022-11-16 21:06:09
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Device.h
  * @Description: nullptr
  *
@@ -11,6 +11,7 @@
 #pragma once
 #include "FrameWork/Base/baseHeader.h"
 
+#include "FrameWork/Wrapper/Command/CommandQueue.h"
 #include "FrameWork/Wrapper/Instance/Instance.h"
 #include "FrameWork/Wrapper/PhysicalDevice.h"
 #include "FrameWork/Wrapper/WindowSurface.h"
@@ -20,27 +21,37 @@
 #include <set>
 
 namespace MoChengEngine::FrameWork::Wrapper {
-class CommandQueue;
 
 class Device : public WrapperBase<VkDevice, Device> {
 private:
-  VkDevice m_handle;
+  //   VkDevice m_handle;
+  VmaAllocator allocator;
+
   PhysicalDevice::Ptr m_gpu;
   Instance::Ptr m_instance;
   WindowSurface::Ptr m_surface;
   std::set<uint32_t> queueFamilies;
+  std::vector<std::vector<CommandQueue::Ptr>> command_queues;
 
   const std::vector<const char *> deviceRequiredExtensions{
       VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+  void FillCommandQueues();
+  void CreateAllocator();
+  std::vector<VkDeviceQueueCreateInfo> MakeCommandQueueCreateInfo();
 
 public:
-  Device(PhysicalDevice::Ptr gpu, WindowSurface::Ptr surface);
+  Device(Instance::Ptr instance, PhysicalDevice::Ptr gpu,
+         WindowSurface::Ptr surface);
   ~Device();
+  CommandQueue::Ptr Get_suitable_graphics_queue();
+  CommandQueue::Ptr Get_queue_by_flag(VkQueueFlags required_queue_flags, uint32_t queue_index);
+
   [[nodiscard]] auto Get_Queue_Index_By_Flag(VkQueueFlagBits bit) {
-    return m_gpu->GetSuitableFamilyQueueIndex_ByFlag(bit);
+    return m_gpu->FindQueueFamilyIndex(bit);
   }
 
-  [[nodiscard]] VkDevice Get_handle() const { return m_handle; }
+  //   [[nodiscard]] VkDevice Get_handle() const { return m_handle; }
   [[nodiscard]] auto Get_gpu() const { return m_gpu; }
+  [[nodiscard]] auto Get_allocator() { return allocator; }
 };
 } // namespace MoChengEngine::FrameWork::Wrapper

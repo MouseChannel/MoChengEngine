@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-11 15:14:03
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-11 20:24:55
+ * @LastEditTime: 2022-11-15 10:28:43
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Glfw_Window.h
  * @Description: nullptr
  *
@@ -14,7 +14,7 @@
 namespace MoChengEngine::FrameWork::Wrapper {
 class Glfw_Window : public WrapperBase<GLFWwindow *, Glfw_Window> {
 private:
-  GLFWwindow *m_handle{NULL};
+//   GLFWwindow *m_handle{NULL};
   int m_Width{0};
   int m_Height{0};
 
@@ -26,7 +26,7 @@ Glfw_Window(const int  width, const int  height);
   void PollEvent();
   
   static void WindowResized(GLFWwindow *window, int width, int height);
-  [[nodiscard]] GLFWwindow *Get_handle()const { return m_handle; }
+//   [[nodiscard]] GLFWwindow *Get_handle()const { return m_handle; }
 };
 
 } // namespace MoChengEngine::FrameWork::Wrapper

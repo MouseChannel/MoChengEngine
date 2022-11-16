@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-08 12:13:24
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-12 11:47:11
+ * @LastEditTime: 2022-11-14 10:33:19
  * @FilePath: \MoChengEngine\app.hpp
  * @Description: nullptr
  *
@@ -12,7 +12,7 @@
 #include "FrameWork/Wrapper/Glfw_Window.h"
 #include "FrameWork/Wrapper/Instance/Instance.h"
 #include"FrameWork/Wrapper/WindowSurface.h"
-#include"FrameWork/Wrapper/GPU/LogicalDevice.h"
+#include"FrameWork/Wrapper/Device.h"
 
 namespace MoChengEngine {
 using namespace FrameWork::Wrapper;
@@ -22,7 +22,7 @@ private:
   unsigned int m_Height{600};
   Glfw_Window::Ptr m_Window{nullptr};
   Instance::Ptr m_Instance{nullptr};
-  LogicalDevice::Ptr m_Device{nullptr};
+  Device::Ptr m_Device{nullptr};
   WindowSurface::Ptr m_Surface{nullptr};
 
   
@@ -59,7 +59,7 @@ void App::InitVulkan(){
 //  auto ss = typeid(m_Surface).name();
 //  auto sws = typeid(m_Instance).name();
 //  std::cout<<<<std::endl;
- m_Device = LogicalDevice::Create(m_Instance, m_Surface);
+ m_Device = Device::Create(m_Instance, m_Surface);
 // VInstance::Instance();
 // Device::Instance();
 int a = 0;

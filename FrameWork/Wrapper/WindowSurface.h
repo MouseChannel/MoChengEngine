@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-11 20:10:22
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-13 16:32:53
+ * @LastEditTime: 2022-11-16 13:11:42
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\WindowSurface.h
  * @Description: nullptr
  *
@@ -17,15 +17,15 @@
 namespace MoChengEngine::FrameWork::Wrapper {
 class WindowSurface : public WrapperBase<VkSurfaceKHR, WindowSurface> {
 private:
-  VkSurfaceKHR m_Handle{VK_NULL_HANDLE};
+  //   VkSurfaceKHR m_Handle{VK_NULL_HANDLE};
   Instance::Ptr m_instance;
   Glfw_Window::Ptr m_window;
 
 public:
   WindowSurface(Instance::Ptr instance, Glfw_Window ::Ptr window);
   ~WindowSurface();
-  [[nodiscard]] VkSurfaceKHR Get_handle() const { return m_Handle; }
-    [[nodiscard]] auto Get_window()const {return m_window;}
+  //   [[nodiscard]] VkSurfaceKHR Get_handle() const { return m_Handle; }
+  [[nodiscard]] auto Get_window() const { return m_window; }
 };
 
-    } // namespace MoChengEngine::FrameWork::Wrapper
+} // namespace MoChengEngine::FrameWork::Wrapper

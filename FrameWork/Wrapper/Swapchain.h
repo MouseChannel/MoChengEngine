@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:08:46
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-13 16:32:10
+ * @LastEditTime: 2022-11-16 15:09:33
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Swapchain.h
  * @Description: nullptr
  *
@@ -15,6 +15,7 @@
 #include "FrameWork/Base/baseHeader.h"
 #include "FrameWork/Wrapper/WindowSurface.h"
 #include "FrameWork/Wrapper/WrapperBase.hpp"
+#include "vulkan/vulkan_core.h"
 
 namespace MoChengEngine::FrameWork::Wrapper {
 struct SwapChainSupportInfo {
@@ -28,19 +29,34 @@ struct SwapChainSupportInfo {
 class SwapChain : public WrapperBase<VkSwapchainKHR, SwapChain> {
 private:
   VkSwapchainKHR m_handle;
+
+  VkFormat m_SwapChainFormat;
   Device::Ptr m_device;
   WindowSurface::Ptr m_surface;
-    int imageCount{0};
-public:
-  SwapChain(Device::Ptr device, WindowSurface::Ptr surface);
-  ~SwapChain();
+  uint32_t imageCount{0};
+  VkExtent2D m_SwapChainExtent;
+  std::vector<VkImage> m_SwapChainImages{};
+  // image管理器
+  std::vector<VkImageView> m_SwapChainImageViews{};
+  void SpawnImages();
+  VkImageView SpawnImageView(VkImage image);
+
   SwapChainSupportInfo QuerySwapChainSupportInfo();
   VkSurfaceFormatKHR
   ChooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
   VkPresentModeKHR ChooseSurfacePresentMode(
       const std::vector<VkPresentModeKHR> &availablePresenstModes);
   VkExtent2D ChooseExtent(const VkSurfaceCapabilitiesKHR &capabilities);
+
+public:
+  SwapChain(Device::Ptr device, WindowSurface::Ptr surface);
+  ~SwapChain();
+  VkResult Acquire_next_image(uint32_t& image_index, VkSemaphore present_finish_semaphore, VkFence fence); 
   [[nodiscard]] VkSwapchainKHR Get_handle() { return m_handle; }
+  [[nodiscard]] auto &Get_images() { return m_SwapChainImages; }
+  [[nodiscard]] auto &Get_images_view() { return m_SwapChainImageViews; }
+  [[nodiscard]] auto &Get_format() { return m_SwapChainFormat; }
+  [[nodiscard]] auto &Get_extent2D() { return m_SwapChainExtent; }
 };
 
 } // namespace MoChengEngine::FrameWork::Wrapper

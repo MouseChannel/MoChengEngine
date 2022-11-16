@@ -1,11 +1,17 @@
 #include "SwapChain.h"
+#include "FrameWork/Wrapper/Image.h"
+#include "FrameWork/Wrapper/Swapchain.h"
+#include "vulkan/vulkan_core.h"
+#include <stdint.h>
 namespace MoChengEngine::FrameWork::Wrapper {
 SwapChain::SwapChain(Device::Ptr device, WindowSurface::Ptr surface)
     : m_device{device}, m_surface{surface} {
   auto swapChainInfo = QuerySwapChainSupportInfo();
   auto surfaceFormat = ChooseSurfaceFormat(swapChainInfo.m_Formats);
+  m_SwapChainFormat = surfaceFormat.format;
   auto presentMode = ChooseSurfacePresentMode(swapChainInfo.m_PresentModes);
-  auto extent = ChooseExtent(swapChainInfo.m_Capabilities);
+  m_SwapChainExtent = ChooseExtent(swapChainInfo.m_Capabilities);
+
   // 设置交换链中图片个数
   imageCount = swapChainInfo.m_Capabilities.minImageCount + 1;
   if (swapChainInfo.m_Capabilities.maxImageCount > 0 &&
@@ -19,7 +25,7 @@ SwapChain::SwapChain(Device::Ptr device, WindowSurface::Ptr surface)
   createInfo.minImageCount = imageCount;
   createInfo.imageFormat = surfaceFormat.format;
   createInfo.imageColorSpace = surfaceFormat.colorSpace;
-  createInfo.imageExtent = extent;
+  createInfo.imageExtent = m_SwapChainExtent;
 
   createInfo.imageArrayLayers = 1;
   createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -43,10 +49,11 @@ SwapChain::SwapChain(Device::Ptr device, WindowSurface::Ptr surface)
   createInfo.clipped = VK_TRUE;
   // 此次还没有任何老交换链，置空即可
   createInfo.oldSwapchain = VK_NULL_HANDLE;
-  if (vkCreateSwapchainKHR(m_device->Get_handle(), &createInfo, nullptr,
-                           &m_handle) != VK_SUCCESS) {
-    throw std::runtime_error("Error: failed to create swapChain");
-  }
+  VK_CHECK_SUCCESS(vkCreateSwapchainKHR(m_device->Get_handle(), &createInfo,
+                                        nullptr, &m_handle),
+                   "Error: failed to create swapChain");
+
+  SpawnImages();
 }
 SwapChain::~SwapChain() {}
 
@@ -141,4 +148,58 @@ SwapChain::ChooseExtent(const VkSurfaceCapabilitiesKHR &capabilities) {
 
   return actualExtent;
 }
+
+void SwapChain::SpawnImages() {
+
+  // 获取交换链图像句柄
+  VK_CHECK_SUCCESS(vkGetSwapchainImagesKHR(m_device->Get_handle(), m_handle,
+                                           &imageCount, nullptr),
+                   "Create SwapChain Image Failed");
+  if (imageCount > 0) {
+    m_SwapChainImages.resize(imageCount);
+    VK_CHECK_SUCCESS(vkGetSwapchainImagesKHR(m_device->Get_handle(), m_handle,
+                                             &imageCount,
+                                             m_SwapChainImages.data()),
+                     "Create SwapChain Image Failed");
+  }
+
+  return;
+  // 生成图像管理器
+  m_SwapChainImageViews.resize(imageCount);
+  for (int i = 0; i < imageCount; ++i) {
+    VkImageViewCreateInfo imageViewCreateInfo{};
+    imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    imageViewCreateInfo.format = m_SwapChainFormat;
+    imageViewCreateInfo.image = m_SwapChainImages[i];
+    imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+    imageViewCreateInfo.subresourceRange.levelCount = 1;
+    imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+    imageViewCreateInfo.subresourceRange.layerCount = 1;
+    m_SwapChainImageViews[i] = Image::CreateView(imageViewCreateInfo, m_device);
+  }
+}
+VkImageView SwapChain::SpawnImageView(VkImage image) {
+  VkImageViewCreateInfo imageViewCreateInfo{};
+  imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+  imageViewCreateInfo.format = m_SwapChainFormat;
+  imageViewCreateInfo.image = image;
+  imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+  imageViewCreateInfo.subresourceRange.levelCount = 1;
+  imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+  imageViewCreateInfo.subresourceRange.layerCount = 1;
+  return Image::CreateView(imageViewCreateInfo, m_device);
+}
+
+VkResult SwapChain::Acquire_next_image(uint32_t &image_index,
+                                       VkSemaphore present_finish_semaphore,
+                                       VkFence fence) {
+ return vkAcquireNextImageKHR(m_device->Get_handle(), m_handle, UINT64_MAX,
+                        present_finish_semaphore, fence, &image_index);
+}
+ 
+
 } // namespace MoChengEngine::FrameWork::Wrapper

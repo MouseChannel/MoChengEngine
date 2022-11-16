@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-11 13:20:09
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-13 12:19:47
+ * @LastEditTime: 2022-11-15 10:30:36
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\PhysicalDevice.cpp
  * @Description: nullptr
  *
@@ -16,8 +16,8 @@
 #include <stdexcept>
 
 namespace MoChengEngine::FrameWork::Wrapper {
-PhysicalDevice::PhysicalDevice(VkPhysicalDevice physicalDevice)
-    : m_handle(physicalDevice) {
+PhysicalDevice::PhysicalDevice(VkPhysicalDevice &physicalDevice) {
+  m_handle = physicalDevice;
   vkGetPhysicalDeviceFeatures(m_handle, &m_features);
   vkGetPhysicalDeviceProperties(m_handle, &m_properties);
   vkGetPhysicalDeviceMemoryProperties(m_handle, &m_memory_properties);
@@ -32,15 +32,29 @@ PhysicalDevice::PhysicalDevice(VkPhysicalDevice physicalDevice)
 }
 PhysicalDevice::~PhysicalDevice() {}
 
-int PhysicalDevice::GetSuitableFamilyQueueIndex_ByFlag(VkQueueFlagBits bit) {
+int PhysicalDevice::FindQueueFamilyIndex(VkQueueFlagBits bit) {
   for (int i = 0; i < queueFamilyCount; i++) {
     auto queueFamily = queueFamilies[i];
     if (queueFamily.queueCount > 0 && (queueFamily.queueFlags & bit)) {
       return i;
     }
   }
-   
+
   throw std::runtime_error("Cant find suitable QueueFamily");
+}
+uint32_t PhysicalDevice::FindMemoryType(uint32_t typeFilter,
+                                        VkMemoryPropertyFlags properties) {
+  VkPhysicalDeviceMemoryProperties memProps;
+  vkGetPhysicalDeviceMemoryProperties(m_handle, &memProps);
+
+  for (uint32_t i = 0; i < memProps.memoryTypeCount; ++i) {
+    if ((typeFilter & (1 << i)) &&
+        ((memProps.memoryTypes[i].propertyFlags & properties) == properties)) {
+      return i;
+    }
+  }
+
+  throw std::runtime_error("Error: cannot find the property memory type!");
 }
 
 bool PhysicalDevice::IsPresentSupport(int queueFamilyIndex,

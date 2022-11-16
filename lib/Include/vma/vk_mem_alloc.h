@@ -2557,13 +2557,13 @@ VMA_CALL_PRE void VMA_CALL_POST vmaFreeStatsString(
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-// For Visual Studio IntelliSense.
-#if defined(__cplusplus) && defined(__INTELLISENSE__)
-#define VMA_IMPLEMENTATION
-#endif
+// // For Visual Studio IntelliSense.
+// #if defined(__cplusplus) && defined(__INTELLISENSE__)
+// #define VMA_IMPLEMENTATION
+// #endif
 
-#ifdef VMA_IMPLEMENTATION
-#undef VMA_IMPLEMENTATION
+// #ifdef VMA_IMPLEMENTATION
+// #undef VMA_IMPLEMENTATION
 
 #include <cstdint>
 #include <cstdlib>
@@ -17526,7 +17526,7 @@ VMA_CALL_PRE void VMA_CALL_POST vmaFreeVirtualBlockStatsString(VmaVirtualBlock V
 }
 #endif // VMA_STATS_STRING_ENABLED
 #endif // _VMA_PUBLIC_INTERFACE
-#endif // VMA_IMPLEMENTATION
+// #endif // VMA_IMPLEMENTATION
 
 /**
 \page quick_start Quick start
