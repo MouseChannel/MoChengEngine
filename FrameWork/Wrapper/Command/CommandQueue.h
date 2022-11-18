@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:26:21
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-16 20:33:57
+ * @LastEditTime: 2022-11-18 14:21:22
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Command\CommandQueue.h
  * @Description: nullptr
  *
@@ -10,11 +10,13 @@
  */
 #pragma once
 #include "FrameWork/Base/baseHeader.h"
+
 #include "FrameWork/Wrapper/Component/ComponentBase.hpp"
 
 #include "FrameWork/Wrapper/WrapperBase.hpp"
 #include "vulkan/vulkan_core.h"
 #include <stdint.h>
+#include <vector>
 namespace MoChengEngine::FrameWork::Wrapper {
 
 class CommandQueue : public WrapperBase<VkQueue, CommandQueue> {
@@ -29,10 +31,12 @@ public:
   CommandQueue(VkDevice device, uint32_t family_index, uint32_t queue_index,
                VkQueueFamilyProperties familyProperties, bool presentSupport);
   ~CommandQueue();
-  bool PresentSupport() { return presentSupport; }
-  VkResult Present(const VkPresentInfoKHR &present_info);
-  [[nodiscard]] auto Get_family_propertie() { return familyProperties; }
-  //   [[nodiscard]] VkQueue Get_handle() const { return m_handle; }
+  VkResult Submit(const std::vector<VkSubmitInfo> &submit_infos, VkFence fence);
+
+  VkResult Present(VkPresentInfoKHR *present_info);
+  [[nodiscard]] auto &Get_family_propertie() { return familyProperties; }
+  [[nodiscard]] bool PresentSupport() { return presentSupport; }
+  [[nodiscard]] auto Get_family_index() { return family_index; }
 };
 
 } // namespace MoChengEngine::FrameWork::Wrapper

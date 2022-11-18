@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:26:37
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-16 21:18:56
+ * @LastEditTime: 2022-11-17 19:21:56
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Command\CommandQueue.cpp
  * @Description: nullptr
  *
@@ -23,7 +23,11 @@ CommandQueue::CommandQueue(VkDevice device, uint32_t family_index,
   vkGetDeviceQueue(device, family_index, queue_index, &m_handle);
 }
 CommandQueue::~CommandQueue() {}
-VkResult CommandQueue::Present(const VkPresentInfoKHR &present_info) {
-  return vkQueuePresentKHR(m_handle, &present_info);
+VkResult CommandQueue::Submit(const std::vector<VkSubmitInfo >  &submit_infos, VkFence fence) {
+  return vkQueueSubmit(m_handle, submit_infos.size(), submit_infos.data(),
+                       fence);
+}
+VkResult CommandQueue::Present(VkPresentInfoKHR *present_info) {
+  return vkQueuePresentKHR(m_handle, present_info);
 }
 } // namespace MoChengEngine::FrameWork::Wrapper

@@ -3,7 +3,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:15:15
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-16 21:26:12
+ * @LastEditTime: 2022-11-17 18:50:37
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Device.cpp
  * @Description: nullptr
  *
@@ -128,6 +128,7 @@ CommandQueue::Ptr Device::Get_suitable_graphics_queue() {
       return queues[0];
     }
   }
+  throw std::runtime_error("Failed to get suitable_graphics_queue");
 }
 CommandQueue::Ptr Device::Get_queue_by_flag(VkQueueFlags required_queue_flags,
                                             uint32_t queue_index) {

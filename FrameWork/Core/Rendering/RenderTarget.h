@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:56:50
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-16 14:46:49
+ * @LastEditTime: 2022-11-17 18:42:09
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderTarget.h
  * @Description: nullptr
  *
@@ -26,8 +26,8 @@ private:
   //   std::vector<Attachment> attachments;
 
 public:
-  RenderTarget(std::vector<Wrapper::Image::Ptr> images_ptr);
-  RenderTarget(std::vector<VkImage> images, std::vector<VkImageView> images_view ,VkExtent2D extent);
+  RenderTarget(std::vector<Wrapper::Image::Ptr> &images_ptr);
+  RenderTarget(std::vector<VkImage> &images, std::vector<VkImageView>& images_view ,VkExtent2D &extent);
   ~RenderTarget();
   [[nodiscard]] auto Get_extent() { return extent; }
   [[nodiscard]] auto Get_image() { return images; }

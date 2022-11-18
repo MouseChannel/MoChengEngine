@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:57:25
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-16 14:46:58
+ * @LastEditTime: 2022-11-17 18:42:36
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderTarget.cpp
  * @Description: nullptr
  *
@@ -13,7 +13,7 @@
 #include "vulkan/vulkan_core.h"
 #include <stdexcept>
 namespace MoChengEngine::FrameWork::Core::Rendering {
-RenderTarget::RenderTarget(std::vector<Wrapper::Image::Ptr> images_p)
+RenderTarget::RenderTarget(std::vector<Wrapper::Image::Ptr> &images_p)
     : images_ptr{images_p} {
   assert(images_ptr.empty());
   extent = images_ptr[0]->Get_extent2D();
@@ -30,8 +30,10 @@ RenderTarget::RenderTarget(std::vector<Wrapper::Image::Ptr> images_p)
                  [](Wrapper::Image::Ptr ptr) { return ptr->Get_view(); });
 }
 
-RenderTarget::RenderTarget(std::vector<VkImage> images,
-                           std::vector<VkImageView> images_view, VkExtent2D extent):images{images},Image_views{images_view},extent{extent} {}
+RenderTarget::RenderTarget(std::vector<VkImage> &images,
+                           std::vector<VkImageView> &images_view,
+                           VkExtent2D &extent)
+    : images{images}, Image_views{images_view}, extent{extent} {}
 RenderTarget::~RenderTarget() {}
 
 } // namespace MoChengEngine::FrameWork::Core::Rendering

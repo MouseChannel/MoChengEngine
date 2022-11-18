@@ -38,7 +38,7 @@ public:
   ~PhysicalDevice();
 
   bool IsPresentSupport(int queueFamilyIndex, VkSurfaceKHR surface);
-  int FindQueueFamilyIndex(VkQueueFlagBits bit);
+  int FindQueueFamilyIndex(VkQueueFlags bits);
   uint32_t FindMemoryType(uint32_t typeFilter,
                           VkMemoryPropertyFlags properties);
 //   [[nodiscard]] VkPhysicalDevice Get_handle()const { return m_handle; }

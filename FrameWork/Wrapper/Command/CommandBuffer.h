@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 14:36:52
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-16 13:45:41
+ * @LastEditTime: 2022-11-18 13:11:30
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Command\CommandBuffer.h
  * @Description: nullptr
  *
@@ -23,12 +23,13 @@ struct RenderPassBinding {
   const Wrapper::FrameBuffer::Ptr framebuffer;
   static RenderPassBinding Create(Wrapper::Device::Ptr &device,
                                   const Wrapper::RenderPass::Ptr &render_pass,
-                                  VkExtent2D extent,
+                                  VkExtent2D &extent,
                                   std::vector<VkImageView> &attachments) {
     return RenderPassBinding{
         .render_pass = render_pass,
-        .framebuffer = Wrapper::FrameBuffer::Create(
-            device->Get_handle(), extent, attachments, render_pass)};
+        // .framebuffer = Wrapper::FrameBuffer::Create(
+        //     device, extent, attachments, render_pass)
+    };
   }
 };
 class CommandBuffer : public WrapperBase<VkCommandBuffer, CommandBuffer> {
@@ -38,6 +39,7 @@ private:
   CommandPool::Ptr m_commandPool;
 
 public:
+  enum { primary = 0, second = 1 };
   CommandBuffer(Device::Ptr device, CommandPool::Ptr commandPool,
                 bool asSecondary = false);
   ~CommandBuffer();

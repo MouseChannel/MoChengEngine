@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-11 13:20:09
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-15 10:30:36
+ * @LastEditTime: 2022-11-18 14:16:26
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\PhysicalDevice.cpp
  * @Description: nullptr
  *
@@ -32,10 +32,10 @@ PhysicalDevice::PhysicalDevice(VkPhysicalDevice &physicalDevice) {
 }
 PhysicalDevice::~PhysicalDevice() {}
 
-int PhysicalDevice::FindQueueFamilyIndex(VkQueueFlagBits bit) {
+int PhysicalDevice::FindQueueFamilyIndex(VkQueueFlags bits) {
   for (int i = 0; i < queueFamilyCount; i++) {
     auto queueFamily = queueFamilies[i];
-    if (queueFamily.queueCount > 0 && (queueFamily.queueFlags & bit)) {
+    if (queueFamily.queueCount > 0 && (queueFamily.queueFlags & bits)) {
       return i;
     }
   }
@@ -70,6 +70,7 @@ bool PhysicalDevice::CheckSupport(VkQueueFlagBits bit) {
     if (queueFamily.queueCount > 0 && (queueFamily.queueFlags & bit)) {
       return true;
     }
+   
   }
   return false;
 }

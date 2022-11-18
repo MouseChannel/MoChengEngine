@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:15:12
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-16 21:06:09
+ * @LastEditTime: 2022-11-18 14:17:28
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Device.h
  * @Description: nullptr
  *
@@ -46,7 +46,7 @@ public:
   CommandQueue::Ptr Get_suitable_graphics_queue();
   CommandQueue::Ptr Get_queue_by_flag(VkQueueFlags required_queue_flags, uint32_t queue_index);
 
-  [[nodiscard]] auto Get_Queue_Index_By_Flag(VkQueueFlagBits bit) {
+  [[nodiscard]] auto Get_queue_family_index_by_flag(VkQueueFlags bit) {
     return m_gpu->FindQueueFamilyIndex(bit);
   }
 

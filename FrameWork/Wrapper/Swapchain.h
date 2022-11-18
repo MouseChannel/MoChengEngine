@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:08:46
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-16 15:09:33
+ * @LastEditTime: 2022-11-17 18:06:29
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Swapchain.h
  * @Description: nullptr
  *
@@ -28,7 +28,7 @@ struct SwapChainSupportInfo {
 };
 class SwapChain : public WrapperBase<VkSwapchainKHR, SwapChain> {
 private:
-  VkSwapchainKHR m_handle;
+ 
 
   VkFormat m_SwapChainFormat;
   Device::Ptr m_device;
@@ -52,7 +52,7 @@ public:
   SwapChain(Device::Ptr device, WindowSurface::Ptr surface);
   ~SwapChain();
   VkResult Acquire_next_image(uint32_t& image_index, VkSemaphore present_finish_semaphore, VkFence fence); 
-  [[nodiscard]] VkSwapchainKHR Get_handle() { return m_handle; }
+ 
   [[nodiscard]] auto &Get_images() { return m_SwapChainImages; }
   [[nodiscard]] auto &Get_images_view() { return m_SwapChainImageViews; }
   [[nodiscard]] auto &Get_format() { return m_SwapChainFormat; }

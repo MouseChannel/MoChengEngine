@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-14 21:37:39
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-16 13:42:23
+ * @LastEditTime: 2022-11-17 18:35:22
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\FrameBuffer.cpp
  * @Description: nullptr
  *
@@ -12,7 +12,7 @@
 #include "vulkan/vulkan_core.h"
 
 namespace MoChengEngine::FrameWork::Wrapper {
-FrameBuffer::FrameBuffer(Device::Ptr &device, VkExtent2D extent,
+FrameBuffer::FrameBuffer(Device::Ptr &device, VkExtent2D &extent,
                          std::vector<VkImageView> &attachments,
                          RenderPass::Ptr &renderPass)
     : m_device{device} {
