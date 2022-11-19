@@ -3,7 +3,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:15:15
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-17 18:50:37
+ * @LastEditTime: 2022-11-19 20:38:02
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Device.cpp
  * @Description: nullptr
  *
@@ -142,5 +142,54 @@ CommandQueue::Ptr Device::Get_queue_by_flag(VkQueueFlags required_queue_flags,
   }
   throw std::runtime_error("Failed to get queue");
 }
+VkSampleCountFlagBits Device::getMaxUsableSampleCount() {
+  VkSampleCountFlagBits res;
+  getMaxUsableSampleCount(res);
+  return res;
+}
+void Device::getMaxUsableSampleCount(VkSampleCountFlagBits &res) {
+  VkPhysicalDeviceProperties props{};
+  vkGetPhysicalDeviceProperties(m_gpu->Get_handle(), &props);
 
+  VkSampleCountFlags counts =
+      std::min(props.limits.framebufferColorSampleCounts,
+               props.limits.framebufferDepthSampleCounts);
+
+  if (counts & VK_SAMPLE_COUNT_64_BIT) {
+    res = VK_SAMPLE_COUNT_64_BIT;
+  } else if (counts & VK_SAMPLE_COUNT_32_BIT) {
+    res = VK_SAMPLE_COUNT_32_BIT;
+  } else if (counts & VK_SAMPLE_COUNT_16_BIT) {
+    res = VK_SAMPLE_COUNT_16_BIT;
+  } else if (counts & VK_SAMPLE_COUNT_8_BIT) {
+    res = VK_SAMPLE_COUNT_8_BIT;
+  } else if (counts & VK_SAMPLE_COUNT_4_BIT) {
+    res = VK_SAMPLE_COUNT_4_BIT;
+  } else if (counts & VK_SAMPLE_COUNT_2_BIT) {
+    res = VK_SAMPLE_COUNT_2_BIT;
+  } else if (counts & VK_SAMPLE_COUNT_1_BIT) {
+    res = VK_SAMPLE_COUNT_1_BIT;
+  }
+}
+VkFormat Device::findSupportedFormat(const std::vector<VkFormat> &candidates,
+                                     VkImageTiling tiling,
+                                     VkFormatFeatureFlags features) {
+  for (auto format : candidates) {
+    VkFormatProperties props;
+
+    vkGetPhysicalDeviceFormatProperties(m_gpu->Get_handle(), format, &props);
+
+    if (tiling == VK_IMAGE_TILING_LINEAR &&
+        (props.linearTilingFeatures & features) == features) {
+      return format;
+    }
+
+    if (tiling == VK_IMAGE_TILING_OPTIMAL &&
+        (props.optimalTilingFeatures & features) == features) {
+      return format;
+    }
+  }
+
+  throw std::runtime_error("Error: can not find proper format");
+}
 } // namespace MoChengEngine::FrameWork::Wrapper

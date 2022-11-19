@@ -1,7 +1,17 @@
+/*
+ * @Author: mousechannel mochenghh@gmail.com
+ * @Date: 2022-11-15 15:24:55
+ * @LastEditors: mousechannel mochenghh@gmail.com
+ * @LastEditTime: 2022-11-19 14:24:49
+ * @FilePath: \MoChengEngine\FrameWork\Wrapper\Fence.cpp
+ * @Description: nullpt
+ * 
+ * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved. 
+ */
 #include "Fence.h"
 #include "vulkan/vulkan_core.h"
 namespace MoChengEngine::FrameWork::Wrapper {
-Fence::Fence(Device::Ptr &device) : m_device{device} {
+Fence::Fence(Device::Ptr &device) : Component<VkFence, Fence>{device} {
   VkFenceCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
   createInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;

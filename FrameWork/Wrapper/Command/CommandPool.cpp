@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 11:53:44
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-18 14:25:39
+ * @LastEditTime: 2022-11-19 14:23:22
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Command\CommandPool.cpp
  * @Description: nullptr
  *
@@ -13,9 +13,9 @@
 #include "vulkan/vulkan_core.h"
 namespace MoChengEngine::FrameWork::Wrapper {
 
-CommandPool::CommandPool(Device::Ptr& device, VkQueueFlags& queue_flags,
+CommandPool::CommandPool(Device::Ptr &device, VkQueueFlags &queue_flags,
                          VkCommandPoolCreateFlagBits flag)
-    : m_device{device},
+    : Component<VkCommandPool, CommandPool>{device},
       queue_family_index{device->Get_queue_family_index_by_flag(queue_flags)} {
 
   VkCommandPoolCreateInfo createInfo;

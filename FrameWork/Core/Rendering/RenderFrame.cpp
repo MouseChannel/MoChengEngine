@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:46:25
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-18 14:53:54
+ * @LastEditTime: 2022-11-18 17:50:25
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderFrame.cpp
  * @Description: nullptr
  *
@@ -21,10 +21,7 @@ RenderFrame::RenderFrame(Wrapper::Device::Ptr &device,
     : m_device{device}, m_render_target{renderTarget},
       m_swapchain_render_target{renderTarget},
       m_render_finish_semaphore{Wrapper::Semaphore::Create(m_device)},
-      m_present_finish_semaphore{Wrapper::Semaphore::Create(m_device)},
-      command_buffers{[this]() {
-        return Wrapper::CommandBuffer::Create(m_device, m_command_pool[0]);
-      }} {}
+      m_present_finish_semaphore{Wrapper::Semaphore::Create(m_device)} {}
 
 RenderFrame::~RenderFrame() {}
 

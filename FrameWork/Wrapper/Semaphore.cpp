@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-15 15:19:59
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-15 15:23:45
+ * @LastEditTime: 2022-11-19 14:27:22
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Semaphore.cpp
  * @Description: nullptr
  *
@@ -11,7 +11,7 @@
 #include "Semaphore.h"
 #include "vulkan/vulkan_core.h"
 namespace MoChengEngine::FrameWork::Wrapper {
-Semaphore::Semaphore(Device::Ptr &device) : m_device{device} {
+Semaphore::Semaphore(Device::Ptr &device) : Component<VkSemaphore, Semaphore>{device} {
   VkSemaphoreCreateInfo createInfo;
   createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
   VK_CHECK_SUCCESS(vkCreateSemaphore(m_device->Get_handle(), &createInfo,

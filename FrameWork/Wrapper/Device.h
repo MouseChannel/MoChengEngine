@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:15:12
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-18 14:17:28
+ * @LastEditTime: 2022-11-19 21:34:30
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Device.h
  * @Description: nullptr
  *
@@ -11,11 +11,11 @@
 #pragma once
 #include "FrameWork/Base/baseHeader.h"
 
+#include "FrameWork/Wrapper/Base/WrapperBase.hpp"
 #include "FrameWork/Wrapper/Command/CommandQueue.h"
 #include "FrameWork/Wrapper/Instance/Instance.h"
 #include "FrameWork/Wrapper/PhysicalDevice.h"
 #include "FrameWork/Wrapper/WindowSurface.h"
-#include "FrameWork/Wrapper/WrapperBase.hpp"
 
 #include <memory>
 #include <set>
@@ -44,14 +44,19 @@ public:
          WindowSurface::Ptr surface);
   ~Device();
   CommandQueue::Ptr Get_suitable_graphics_queue();
-  CommandQueue::Ptr Get_queue_by_flag(VkQueueFlags required_queue_flags, uint32_t queue_index);
-
+  CommandQueue::Ptr Get_queue_by_flag(VkQueueFlags required_queue_flags,
+                                      uint32_t queue_index);
+  void getMaxUsableSampleCount(VkSampleCountFlagBits &res);
+  VkSampleCountFlagBits getMaxUsableSampleCount();
+  VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates,
+                               VkImageTiling tiling,
+                               VkFormatFeatureFlags features);
   [[nodiscard]] auto Get_queue_family_index_by_flag(VkQueueFlags bit) {
     return m_gpu->FindQueueFamilyIndex(bit);
   }
 
   //   [[nodiscard]] VkDevice Get_handle() const { return m_handle; }
-  [[nodiscard]] auto Get_gpu() const { return m_gpu; }
-  [[nodiscard]] auto Get_allocator() { return allocator; }
+  [[nodiscard]] auto &Get_gpu() const { return m_gpu; }
+  [[nodiscard]] auto &Get_allocator() { return allocator; }
 };
 } // namespace MoChengEngine::FrameWork::Wrapper

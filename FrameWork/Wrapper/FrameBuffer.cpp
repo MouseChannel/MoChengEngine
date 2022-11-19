@@ -2,20 +2,21 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-14 21:37:39
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-17 18:35:22
+ * @LastEditTime: 2022-11-19 21:35:16
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\FrameBuffer.cpp
  * @Description: nullptr
  *
  * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
  */
 #include "FrameBuffer.h"
-#include "vulkan/vulkan_core.h"
+#include "FrameWork/Wrapper/Command/CommandQueue.h"
+ 
 
 namespace MoChengEngine::FrameWork::Wrapper {
 FrameBuffer::FrameBuffer(Device::Ptr &device, VkExtent2D &extent,
                          std::vector<VkImageView> &attachments,
                          RenderPass::Ptr &renderPass)
-    : m_device{device} {
+    : Component<VkFrameBuffer, FrameBuffer>{device} {
 
   VkFramebufferCreateInfo frameBufferCreateInfo{};
   frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;

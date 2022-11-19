@@ -9,7 +9,7 @@ FIND_LIBRARY(GLFW libglfw3 ${PROJECT_SOURCE_DIR}/lib/glfw3)
 add_definitions(-w)
 add_subdirectory(FrameWork)
 add_executable(MoChengEngine main.cpp)
-target_link_libraries(MoChengEngine ${VULKAN} ${GLFW} framework)
+target_link_libraries(MoChengEngine ${VULKAN} ${GLFW} framework_lib)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

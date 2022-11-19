@@ -12,15 +12,14 @@
 #include "Device.h"
 #include "FrameWork/Base/baseHeader.h"
 
-#include "FrameWork/Wrapper/WrapperBase.hpp"
+#include "FrameWork/Wrapper/Base/Component.hpp"
 #include "RenderPass.h"
 #include "vulkan/vulkan_core.h"
 
 namespace MoChengEngine::FrameWork::Wrapper {
-class FrameBuffer : public WrapperBase<VkFrameBuffer, FrameBuffer> {
+class FrameBuffer : public Component<VkFrameBuffer, FrameBuffer> {
 private:
-  //   VkFrameBuffer m_handle;
-  Device::Ptr m_device;
+ 
 
 public:
   FrameBuffer(Device::Ptr &device, VkExtent2D &extent,

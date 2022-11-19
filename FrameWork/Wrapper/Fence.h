@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-15 15:24:53
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-15 15:28:59
+ * @LastEditTime: 2022-11-19 14:18:15
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Fence.h
  * @Description: nullptr
  *
@@ -10,14 +10,14 @@
  */
 #pragma once
 #include "FrameWork/Base/baseHeader.h"
-#include "FrameWork/Wrapper/WrapperBase.hpp"
+#include "FrameWork/Wrapper/Base/Component.hpp"
 #include "vulkan/vulkan_core.h" 
 #include "Device.h"
 #include <stdint.h>
 namespace MoChengEngine::FrameWork::Wrapper {
-class Fence : public WrapperBase<VkFence, Fence> {
+class Fence : public Component<VkFence, Fence> {
 private:
-  Device::Ptr m_device;
+  
 
 public:
 void Reset();

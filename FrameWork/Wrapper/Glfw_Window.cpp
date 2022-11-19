@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-11 15:14:12
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-11 20:56:27
+ * @LastEditTime: 2022-11-19 21:49:48
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Glfw_Window.cpp
  * @Description: nullptr
  *
@@ -10,10 +10,10 @@
  */
 #include "Glfw_Window.h"
 namespace MoChengEngine::FrameWork::Wrapper {
-Glfw_Window::Glfw_Window(const int width, const int height) {
+Glfw_Window_my::Glfw_Window_my() {
 
-  m_Width = width;
-  m_Height = height;
+  //   m_Width = width;
+  //   m_Height = height;
   glfwInit();
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -23,19 +23,19 @@ Glfw_Window::Glfw_Window(const int width, const int height) {
   if (!m_handle) {
     std::cout << "Error: failed to create window" << std::endl;
   }
-  glfwSetWindowUserPointer(m_handle, this);
-  glfwSetFramebufferSizeCallback(m_handle, WindowResized);
+  //   glfwSetWindowUserPointer(m_handle, this);
+  //   glfwSetFramebufferSizeCallback(m_handle, WindowResized);
 }
-Glfw_Window::~Glfw_Window() {
+Glfw_Window_my::~Glfw_Window_my() {
   glfwDestroyWindow(m_handle);
   glfwTerminate();
 }
-bool Glfw_Window::ShouldClose() { return glfwWindowShouldClose(m_handle); }
+bool Glfw_Window_my::ShouldClose() { return glfwWindowShouldClose(m_handle); }
 
-void Glfw_Window::PollEvent() { glfwPollEvents(); }
-void Glfw_Window::WindowResized(GLFWwindow *window, int width, int height) {
+void Glfw_Window_my::PollEvent() { glfwPollEvents(); }
+void Glfw_Window_my::WindowResized(GLFWwindow *window, int width, int height) {
   auto pUserData =
-      reinterpret_cast<Glfw_Window *>(glfwGetWindowUserPointer(window));
+      reinterpret_cast<Glfw_Window_my *>(glfwGetWindowUserPointer(window));
   pUserData->m_WindowResized = true;
 }
 

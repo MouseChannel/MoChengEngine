@@ -12,7 +12,7 @@
 #include "WindowSurface.h"
 
 namespace MoChengEngine::FrameWork::Wrapper {
-WindowSurface::WindowSurface(Instance::Ptr instance, Glfw_Window::Ptr window) {
+WindowSurface::WindowSurface(Instance::Ptr instance, Glfw_Window_my::Ptr window) {
   m_instance = instance;
   m_window = window;
   VK_CHECK_SUCCESS(glfwCreateWindowSurface(instance->Get_handle(),

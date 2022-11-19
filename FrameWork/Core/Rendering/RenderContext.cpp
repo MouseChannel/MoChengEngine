@@ -22,7 +22,7 @@
 #include "vulkan/vulkan_core.h"
 namespace MoChengEngine::FrameWork::Core::Rendering {
 RenderContext::RenderContext(Wrapper::Device::Ptr device,
-                             Wrapper::Glfw_Window::Ptr window,
+                             Wrapper::Glfw_Window_my::Ptr window,
                              Wrapper::WindowSurface::Ptr surface)
     : m_device{device}, m_window{window}, m_surface{surface},
       m_command_queue{m_device->Get_suitable_graphics_queue()} {

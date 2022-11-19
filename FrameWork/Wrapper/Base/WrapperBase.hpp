@@ -2,8 +2,8 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-11 13:46:02
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-15 13:36:11
- * @FilePath: \MoChengEngine\FrameWork\Wrapper\WrapperBase.hpp
+ * @LastEditTime: 2022-11-19 21:40:48
+ * @FilePath: \MoChengEngine\FrameWork\Wrapper\Base\WrapperBase.hpp
  * @Description: nullptr
  *
  * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
@@ -22,10 +22,6 @@ public:
     return std::make_shared<K>(std::forward<decltype(args)>(args)...);
   }
 
-  static Ptr CreateR(auto &&...args) {
-    return std::make_shared<K>(std::forward<decltype(args)>(args)...);
-  }
-
-  [[nodiscard]] T& Get_handle() { return m_handle; };
+  [[nodiscard]] T &Get_handle() { return m_handle; };
 };
 } // namespace MoChengEngine::FrameWork::Wrapper

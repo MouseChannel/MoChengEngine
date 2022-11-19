@@ -5,7 +5,7 @@
 #include <stdint.h>
 namespace MoChengEngine::FrameWork::Wrapper {
 SwapChain::SwapChain(Device::Ptr device, WindowSurface::Ptr surface)
-    : m_device{device}, m_surface{surface} {
+    : Component<VkSwapchainKHR, SwapChain>{device}, m_surface{surface} {
   auto swapChainInfo = QuerySwapChainSupportInfo();
   auto surfaceFormat = ChooseSurfaceFormat(swapChainInfo.m_Formats);
   m_SwapChainFormat = surfaceFormat.format;
@@ -54,6 +54,8 @@ SwapChain::SwapChain(Device::Ptr device, WindowSurface::Ptr surface)
                    "Error: failed to create swapChain");
 
   SpawnImages();
+
+  
 }
 SwapChain::~SwapChain() {}
 
@@ -197,9 +199,8 @@ VkImageView SwapChain::SpawnImageView(VkImage image) {
 VkResult SwapChain::Acquire_next_image(uint32_t &image_index,
                                        VkSemaphore present_finish_semaphore,
                                        VkFence fence) {
- return vkAcquireNextImageKHR(m_device->Get_handle(), m_handle, UINT64_MAX,
-                        present_finish_semaphore, fence, &image_index);
+  return vkAcquireNextImageKHR(m_device->Get_handle(), m_handle, UINT64_MAX,
+                               present_finish_semaphore, fence, &image_index);
 }
- 
 
 } // namespace MoChengEngine::FrameWork::Wrapper

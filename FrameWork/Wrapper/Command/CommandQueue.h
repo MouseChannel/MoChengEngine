@@ -13,7 +13,7 @@
 
 #include "FrameWork/Wrapper/Component/ComponentBase.hpp"
 
-#include "FrameWork/Wrapper/WrapperBase.hpp"
+#include "FrameWork/Wrapper/Base/WrapperBase.hpp"
 #include "vulkan/vulkan_core.h"
 #include <stdint.h>
 #include <vector>

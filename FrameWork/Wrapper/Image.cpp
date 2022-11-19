@@ -4,13 +4,13 @@
 #include <assert.h>
 #include <stdint.h>
 namespace MoChengEngine::FrameWork::Wrapper {
-Image::Image(const Device::Ptr device, const VkExtent3D &extent,
-             const VkFormat &format, const VkImageType &imageType,
-             const VkImageTiling &tiling, const VkImageUsageFlags &image_usage,
-             const VkSampleCountFlagBits &sample,
-             const VkMemoryPropertyFlags &properties,
-             const VkImageAspectFlags &aspectFlags,
-             const VmaMemoryUsage &memory_usage)
+Image::Image(const Device::Ptr device, const VkExtent3D extent,
+             const VkFormat format, const VkImageType imageType,
+             const VkImageTiling tiling, const VkImageUsageFlags image_usage,
+             const VkSampleCountFlagBits sample,
+             const VkMemoryPropertyFlags properties,
+             const VkImageAspectFlags aspectFlags,
+             const VmaMemoryUsage memory_usage)
     : Resource<VkImage, Image>{device}, m_extent{extent}, m_imageType{
                                                               imageType} {
   VkImageCreateInfo imageCreateInfo;
@@ -42,8 +42,8 @@ Image::Image(const Device::Ptr device, const VkExtent3D &extent,
   CreateView(Make_View_Info(aspectFlags), m_device);
 }
 Image::Image(const Device::Ptr &device, VkImage image_handle,
-             const VkExtent3D &extent, VkFormat format,
-             const VkImageUsageFlags &usage, VkSampleCountFlagBits sample_count)
+             const VkExtent3D extent, VkFormat format,
+             const VkImageUsageFlags usage, VkSampleCountFlagBits sample_count)
     : Resource<VkImage, Image>{device}, m_extent{extent}, m_format(format) {
   m_handle = image_handle;
   CreateView(Make_View_Info(VK_IMAGE_ASPECT_COLOR_BIT), m_device);

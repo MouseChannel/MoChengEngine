@@ -1,9 +1,23 @@
+/*
+ * @Author: mousechannel mochenghh@gmail.com
+ * @Date: 2022-11-14 21:57:15
+ * @LastEditors: mousechannel mochenghh@gmail.com
+ * @LastEditTime: 2022-11-19 18:09:10
+ * @FilePath: \MoChengEngine\FrameWork\Wrapper\RenderPass.cpp
+ * @Description: nullptr
+ *
+ * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
+ */
 #include "RenderPass.h"
 #include "FrameWork/Wrapper/RenderPass.h"
 #include "vulkan/vulkan_core.h"
 namespace MoChengEngine::FrameWork::Wrapper {
-RenderPass::RenderPass(Device::Ptr device) : m_device{device} {}
-RenderPass::~RenderPass() {vkDestroyRenderPass(m_device->Get_handle(),m_handle, nullptr);}
+RenderPass::RenderPass(Device::Ptr device)
+    : Component<VkRenderPass, RenderPass>{device} {}
+RenderPass::~RenderPass() {
+
+  vkDestroyRenderPass(m_device->Get_handle(), m_handle, nullptr);
+}
 void RenderPass::BuildRenderPass() {
 
   if (mSubPasses.empty() || mAttachmentDescriptions.empty() ||
@@ -30,9 +44,8 @@ void RenderPass::BuildRenderPass() {
   createInfo.subpassCount = static_cast<uint32_t>(subPasses.size());
   createInfo.pSubpasses = subPasses.data();
 
-  if (vkCreateRenderPass(m_device->Get_handle(), &createInfo, nullptr,
-                         &m_handle) != VK_SUCCESS) {
-    throw std::runtime_error("Error: failed to create renderPass");
-  }
+  VK_CHECK_SUCCESS(vkCreateRenderPass(m_device->Get_handle(), &createInfo,
+                                      nullptr, &m_handle),
+                   "Error: failed to create renderPass");
 }
 } // namespace MoChengEngine::FrameWork::Wrapper

@@ -12,17 +12,17 @@
 #include "./Instance/Instance.h"
 #include "FrameWork/Base/baseHeader.h"
 #include "Glfw_Window.h"
-#include "WrapperBase.hpp"
+#include "FrameWork/Wrapper/Base/WrapperBase.hpp"
 
 namespace MoChengEngine::FrameWork::Wrapper {
 class WindowSurface : public WrapperBase<VkSurfaceKHR, WindowSurface> {
 private:
   //   VkSurfaceKHR m_Handle{VK_NULL_HANDLE};
   Instance::Ptr m_instance;
-  Glfw_Window::Ptr m_window;
+  Glfw_Window_my::Ptr m_window;
 
 public:
-  WindowSurface(Instance::Ptr instance, Glfw_Window ::Ptr window);
+  WindowSurface(Instance::Ptr instance, Glfw_Window_my ::Ptr window);
   ~WindowSurface();
   //   [[nodiscard]] VkSurfaceKHR Get_handle() const { return m_Handle; }
   [[nodiscard]] auto Get_window() const { return m_window; }

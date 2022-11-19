@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-14 11:30:26
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-14 15:10:20
+ * @LastEditTime: 2022-11-19 14:18:04
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Buffer.h
  * @Description: nullptr
  *
@@ -10,13 +10,13 @@
  */
 #pragma once
 #include "FrameWork/Base/baseHeader.h"
-#include "FrameWork/Wrapper/Resource.hpp"
+#include "FrameWork/Wrapper/Base/Resource.hpp"
 
 #include "Device.h"
 namespace MoChengEngine::FrameWork::Wrapper {
 class Buffer : public Resource<VkBuffer, Buffer> {
 private:
-  VkBuffer m_handle;
+ 
   bool persistent;
   uint8_t *mapped_data;
   VmaAllocationInfo allocation_info;
@@ -33,6 +33,6 @@ public:
   void UnMap();
   void Update(void *data, size_t size, size_t offset = 0);
   void Flush();
-  [[nodiscard]] VkBuffer Get_handle() const { return m_handle; }
+ 
 };
 } // namespace MoChengEngine::FrameWork::Wrapper

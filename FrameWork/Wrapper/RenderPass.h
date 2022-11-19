@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-14 21:56:24
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-15 13:34:49
+ * @LastEditTime: 2022-11-19 20:20:24
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\RenderPass.h
  * @Description: nullptr
  *
@@ -11,15 +11,14 @@
 #pragma once
 #include "Device.h"
 #include "FrameWork/Base/baseHeader.h"
+#include "FrameWork/Wrapper/Base/Component.hpp"
 #include "FrameWork/Wrapper/RenderPass.h"
-#include "FrameWork/Wrapper/WrapperBase.hpp"
 #include <memory>
 
 namespace MoChengEngine::FrameWork::Wrapper {
 class SubPass;
-class RenderPass : public WrapperBase<VkRenderPass, RenderPass> {
+class RenderPass : public Component<VkRenderPass, RenderPass> {
 private:
-  Device::Ptr m_device;
   std::vector<std::unique_ptr<SubPass>> mSubPasses;
   std::vector<VkSubpassDependency> mDependencies;
   // need to sync index in frameBuffer attachments;
@@ -34,15 +33,12 @@ public:
     mDependencies.push_back(dependency);
   }
 
-  void AddAttachment(const VkAttachmentDescription &attachmentDes) {
-    mAttachmentDescriptions.push_back(attachmentDes);
-  }
-  void SetAttachment(std::vector<VkAttachmentDescription> &attachmentDes) {
+  void Set_attachment_description(
+      std::vector<VkAttachmentDescription> &attachmentDes) {
     mAttachmentDescriptions = attachmentDes;
   }
-
+  [[nodiscard]] auto &Get_subpasses() { return mSubPasses; }
   void BuildRenderPass();
-  [[nodiscard]] auto& Get_device() const{return m_device;}
 };
 
 class SubPass {
@@ -55,25 +51,60 @@ private:
   std::vector<VkAttachmentReference> m_InputAttachmentReferences{};
   VkAttachmentReference m_DepthStencilAttachmentReference{};
   VkAttachmentReference m_ResolvedAttachmentReference{};
+  VkSubpassDependency m_dependence;
 
 public:
+  enum attachment_type {
+    ColorAttachment = 0,
+    ResolveAttachment = 1,
+    DepthStencilAttachment = 2,
+    InputAttachment = 3
+
+  };
   SubPass() = default;
   ~SubPass() = default;
-  void AddColorAttachmentReference(const VkAttachmentReference &ref) {
-    m_ColorAttachmentReferences.push_back(ref);
-  }
 
-  void AddInputAttachmentReference(const VkAttachmentReference &ref) {
-    m_InputAttachmentReferences.push_back(ref);
-  }
+  void Add_attachment_reference(const VkAttachmentReference ref,
+                                attachment_type type) {
+    switch (type) {
+    case Wrapper::SubPass::ColorAttachment:
+      m_ColorAttachmentReferences.push_back(ref);
+      break;
+    case Wrapper::SubPass::DepthStencilAttachment:
+      m_DepthStencilAttachmentReference = ref;
+      break;
+    case Wrapper::SubPass::InputAttachment:
+      m_InputAttachmentReferences.push_back(ref);
+      break;
+    case Wrapper::SubPass::ResolveAttachment:
+      m_ResolvedAttachmentReference = ref;
+      break;
+    }
 
-  void SetDepthStencilAttachmentReference(const VkAttachmentReference &ref) {
-    m_DepthStencilAttachmentReference = ref;
+ 
   }
+  void Set_dependence(VkSubpassDependency dependence) {
+    m_dependence = dependence;
+  }
+  void Build_SubPass_Description() {
+    if (m_ColorAttachmentReferences.empty()) {
+      throw std::runtime_error("Error: color attachment group is empty!");
+    }
+    m_SubPassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
-  void BuildSubPassDescription();
-  void setResolveAttachmentReference(const VkAttachmentReference &ref) {
-    m_ResolvedAttachmentReference = ref;
+    m_SubPassDescription.colorAttachmentCount =
+        static_cast<uint32_t>(m_ColorAttachmentReferences.size());
+    m_SubPassDescription.pColorAttachments = m_ColorAttachmentReferences.data();
+
+    m_SubPassDescription.inputAttachmentCount =
+        static_cast<uint32_t>(m_InputAttachmentReferences.size());
+    m_SubPassDescription.pInputAttachments = m_InputAttachmentReferences.data();
+    m_SubPassDescription.pResolveAttachments = &m_ResolvedAttachmentReference;
+
+    m_SubPassDescription.pDepthStencilAttachment =
+        m_DepthStencilAttachmentReference.layout == VK_IMAGE_LAYOUT_UNDEFINED
+            ? nullptr
+            : &m_DepthStencilAttachmentReference;
   }
 
   [[nodiscard]] auto GetSubPassDescription() const {

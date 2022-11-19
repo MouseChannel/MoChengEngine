@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-15 15:19:29
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-15 18:52:38
+ * @LastEditTime: 2022-11-19 14:27:10
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Semaphore.h
  * @Description: nullptr
  *
@@ -10,13 +10,13 @@
  */
 #pragma once
 #include "FrameWork/Base/baseHeader.h"
-#include "FrameWork/Wrapper/WrapperBase.hpp"
+#include "FrameWork/Wrapper/Base/Component.hpp"
 #include "vulkan/vulkan_core.h"
 #include"Device.h"
 namespace MoChengEngine::FrameWork::Wrapper {
-class Semaphore : public WrapperBase<VkSemaphore, Semaphore> {
+class Semaphore : public Component<VkSemaphore, Semaphore> {
 private:
-  Device::Ptr m_device;
+  
 
 public:
 

@@ -2,19 +2,21 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 14:36:55
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-13 11:27:13
+ * @LastEditTime: 2022-11-19 16:46:33
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Command\CommandBuffer.cpp
  * @Description: nullptr
  *
  * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
  */
 #include "CommandBuffer.h"
+#include "FrameWork/Wrapper/Command/CommandBuffer.h"
 #include "vulkan/vulkan_core.h"
 namespace MoChengEngine::FrameWork::Wrapper {
 
 CommandBuffer::CommandBuffer(Device::Ptr device, CommandPool::Ptr commandPool,
                              bool asSecondary)
-    : m_device{device}, m_commandPool{commandPool} {
+    : Component<VkCommandBuffer, CommandBuffer>{device}, m_commandPool{
+                                                             commandPool} {
 
   VkCommandBufferAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -50,7 +52,20 @@ void CommandBuffer::BeginRenderPass(
   vkCmdBeginRenderPass(m_handle, &renderPassBeginInfo, subPassContents);
 }
 void CommandBuffer::EndRenderPass() { vkCmdEndRenderPass(m_handle); }
-
+void CommandBuffer::BindGraphicPipeline(const VkPipeline &pipeline) {
+  vkCmdBindPipeline(m_handle, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+}
+void CommandBuffer::BindVertexBuffer(const std::vector<VkBuffer> &buffers) {
+  std::vector<VkDeviceSize> offsets(buffers.size(), 0);
+  vkCmdBindVertexBuffers(m_handle, 0, static_cast<uint32_t>(buffers.size()),
+                         buffers.data(), offsets.data());
+}
+void CommandBuffer::BindIndexBuffer(const VkBuffer &buffer) {
+  vkCmdBindIndexBuffer(m_handle, buffer, 0, VK_INDEX_TYPE_UINT32);
+}
+void CommandBuffer::DrawIndex(size_t indexCount) {
+  vkCmdDrawIndexed(m_handle, indexCount, 1, 0, 0, 0);
+}
 void CommandBuffer::CopyBufferToBuffer(
     VkBuffer srcBuffer, VkBuffer dstBuffer, uint32_t copyInfoCount,
     const std::vector<VkBufferCopy> &copyInfos) {

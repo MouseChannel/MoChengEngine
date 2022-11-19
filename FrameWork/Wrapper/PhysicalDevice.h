@@ -11,7 +11,7 @@
 #pragma once
 
 #include "FrameWork/Base/baseHeader.h"
-#include "FrameWork/Wrapper/WrapperBase.hpp"
+#include "FrameWork/Wrapper/Base/WrapperBase.hpp"
 
 #include <vector>
 

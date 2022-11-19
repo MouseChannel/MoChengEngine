@@ -2,18 +2,19 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 17:00:17
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-16 10:48:50
+ * @LastEditTime: 2022-11-19 20:17:47
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Image.h
  * @Description: nullptr
- *
- * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
+ * 
+ * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved. 
  */
+
 #pragma once
 #include "Device.h"
 #include "FrameWork/Base/baseHeader.h"
 #include "FrameWork/Wrapper/Command/CommandBuffer.h"
-#include "FrameWork/Wrapper/Resource.hpp"
-#include "FrameWork/Wrapper/WrapperBase.hpp"
+#include "FrameWork/Wrapper/Base/Resource.hpp"
+#include "FrameWork/Wrapper/Base/WrapperBase.hpp"
 #include "vulkan/vulkan_core.h"
 
 namespace MoChengEngine::FrameWork::Wrapper {
@@ -30,16 +31,16 @@ private:
   VkImageViewCreateInfo Make_View_Info(const VkImageAspectFlags aspectFlags);
 
 public:
-  Image(const Device::Ptr device, const VkExtent3D &extent,
-        const VkFormat &format, const VkImageType &imageType,
-        const VkImageTiling &tiling, const VkImageUsageFlags &usage,
-        const VkSampleCountFlagBits &sample,
-        const VkMemoryPropertyFlags &properties,
-        const VkImageAspectFlags &aspectFlags,
-        const VmaMemoryUsage &memory_usage);
+  Image(const Device::Ptr device, const VkExtent3D  extent,
+        const VkFormat  format, const VkImageType  imageType,
+        const VkImageTiling  tiling, const VkImageUsageFlags  usage,
+        const VkSampleCountFlagBits sample,
+        const VkMemoryPropertyFlags properties,
+        const VkImageAspectFlags aspectFlags,
+        const VmaMemoryUsage memory_usage);
   Image(const Device::Ptr &device, VkImage image_handle,
-        const VkExtent3D &extent, VkFormat format,
-        const VkImageUsageFlags &usage,
+        const VkExtent3D extent, VkFormat format,
+        const VkImageUsageFlags  usage,
         VkSampleCountFlagBits sample_count = VK_SAMPLE_COUNT_1_BIT);
   ~Image();
   Image() = delete;

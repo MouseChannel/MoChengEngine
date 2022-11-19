@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:08:46
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-17 18:06:29
+ * @LastEditTime: 2022-11-19 19:25:16
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Swapchain.h
  * @Description: nullptr
  *
@@ -13,9 +13,10 @@
 #include "./Instance/Instance.h"
 #include "Device.h"
 #include "FrameWork/Base/baseHeader.h"
+#include "FrameWork/Wrapper/Base/Component.hpp"
 #include "FrameWork/Wrapper/WindowSurface.h"
-#include "FrameWork/Wrapper/WrapperBase.hpp"
 #include "vulkan/vulkan_core.h"
+
 
 namespace MoChengEngine::FrameWork::Wrapper {
 struct SwapChainSupportInfo {
@@ -26,12 +27,10 @@ struct SwapChainSupportInfo {
   // 可用的呈现模式
   std::vector<VkPresentModeKHR> m_PresentModes;
 };
-class SwapChain : public WrapperBase<VkSwapchainKHR, SwapChain> {
+class SwapChain : public Component<VkSwapchainKHR, SwapChain> {
 private:
- 
-
   VkFormat m_SwapChainFormat;
-  Device::Ptr m_device;
+
   WindowSurface::Ptr m_surface;
   uint32_t imageCount{0};
   VkExtent2D m_SwapChainExtent;
@@ -51,12 +50,15 @@ private:
 public:
   SwapChain(Device::Ptr device, WindowSurface::Ptr surface);
   ~SwapChain();
-  VkResult Acquire_next_image(uint32_t& image_index, VkSemaphore present_finish_semaphore, VkFence fence); 
- 
+  VkResult Acquire_next_image(uint32_t &image_index,
+                              VkSemaphore present_finish_semaphore,
+                              VkFence fence);
+
   [[nodiscard]] auto &Get_images() { return m_SwapChainImages; }
   [[nodiscard]] auto &Get_images_view() { return m_SwapChainImageViews; }
   [[nodiscard]] auto &Get_format() { return m_SwapChainFormat; }
   [[nodiscard]] auto &Get_extent2D() { return m_SwapChainExtent; }
+  [[nodiscard]] auto Get_image_count() { return imageCount; }
 };
 
 } // namespace MoChengEngine::FrameWork::Wrapper

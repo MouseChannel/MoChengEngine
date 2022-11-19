@@ -1,3 +1,3 @@
 file(GLOB_RECURSE FRAMEWORK ./   *.cpp  )
 
-add_library(framework  ${FRAMEWORK})
+add_library(framework_lib  ${FRAMEWORK})
