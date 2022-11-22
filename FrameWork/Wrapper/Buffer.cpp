@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-14 11:30:30
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-14 15:12:41
+ * @LastEditTime: 2022-11-22 14:33:44
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Buffer.cpp
  * @Description: nullptr
  *
@@ -13,7 +13,7 @@
 namespace MoChengEngine::FrameWork::Wrapper {
 Buffer::Buffer(Device::Ptr device, VkDeviceSize size,
                VkBufferUsageFlags buffer_usage, VmaMemoryUsage memory_usage,
-               VmaAllocationCreateFlags flags, VkMemoryPropertyFlags properties,
+                VkMemoryPropertyFlags properties,VmaAllocationCreateFlags flags,
                const std::vector<uint32_t> &queue_family_indices)
     : Resource<VkBuffer, Buffer>{device} {
 

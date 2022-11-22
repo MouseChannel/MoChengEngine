@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 17:00:17
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-20 21:38:53
+ * @LastEditTime: 2022-11-22 20:42:50
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Image.h
  * @Description: nullptr
  *
@@ -21,14 +21,14 @@
 namespace MoChengEngine::FrameWork::Wrapper {
 class Image : public Resource<VkImage, Image> {
 private:
-  VkImageView m_view;
+  VkImageView m_view{nullptr};
 
   VkFormat m_format;
   VkImageLayout m_layout{VK_IMAGE_LAYOUT_UNDEFINED};
   VkImageType m_imageType;
 
   VkExtent3D m_extent;
-
+    bool auto_destroy;
   VkImageViewCreateInfo Make_View_Info(const VkImageAspectFlags aspectFlags);
 
 public:
@@ -40,11 +40,11 @@ public:
         const VkImageAspectFlags aspectFlags,
         const VmaMemoryUsage memory_usage);
   Image(const Device::Ptr &device, VkImage image_handle,
-        const VkExtent3D extent, VkFormat format  );
+        const VkExtent3D extent, VkFormat format  , bool auto_destroy = false);
   ~Image();
   Image() = delete;
   static VkImageView CreateView(VkImageViewCreateInfo viewInfo,
-                                Device::Ptr &device);
+                                Device::Ptr  device);
 
   void FillImageData(size_t size, void *pData);
   // 使用barrier修改image格式

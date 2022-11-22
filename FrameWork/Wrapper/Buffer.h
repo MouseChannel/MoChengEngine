@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-14 11:30:26
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-19 14:18:04
+ * @LastEditTime: 2022-11-22 14:35:50
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Buffer.h
  * @Description: nullptr
  *
@@ -24,8 +24,8 @@ private:
 
 public:
   Buffer(Device::Ptr device, VkDeviceSize size, VkBufferUsageFlags buffer_usage,
-         VmaMemoryUsage memory_usage, VmaAllocationCreateFlags flags,
-         VkMemoryPropertyFlags properties,
+         VmaMemoryUsage memory_usage, 
+         VkMemoryPropertyFlags properties,VmaAllocationCreateFlags flags = 0,
          const std::vector<uint32_t> &queue_family_indices =
              std::vector<uint32_t>());
   ~Buffer();

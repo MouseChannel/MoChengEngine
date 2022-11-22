@@ -56,7 +56,10 @@ SwapChain::SwapChain(Device::Ptr device, WindowSurface::Ptr surface)
 
   SpawnImages();
 }
-SwapChain::~SwapChain() {}
+SwapChain::~SwapChain() {
+
+  vkDestroySwapchainKHR(m_device->Get_handle(), m_handle, nullptr);
+}
 
 SwapChainSupportInfo SwapChain::QuerySwapChainSupportInfo() {
   SwapChainSupportInfo info{};
@@ -166,31 +169,19 @@ void SwapChain::SpawnImages() {
                                            m_SwapChainImages.data()),
                    "Create SwapChain Image Failed");
 
-  std::transform(
-      m_SwapChainImages.begin(), m_SwapChainImages.end(),
-      m_swapchain_images.end(), [this](VkImage image_handle) {
-        VkExtent3D extent{m_SwapChainExtent.width, m_SwapChainExtent.height, 1};
-        return Image::Create(m_device, image_handle, extent, m_SwapChainFormat);
-      });
-
-  return;
-  // 生成图像管理器
-  m_SwapChainImageViews.resize(imageCount);
-  for (int i = 0; i < imageCount; ++i) {
-    VkImageViewCreateInfo imageViewCreateInfo{};
-    imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    imageViewCreateInfo.format = m_SwapChainFormat;
-    imageViewCreateInfo.image = m_SwapChainImages[i];
-    imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
-    imageViewCreateInfo.subresourceRange.levelCount = 1;
-    imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
-    imageViewCreateInfo.subresourceRange.layerCount = 1;
-    m_SwapChainImageViews[i] = Image::CreateView(imageViewCreateInfo, m_device);
+  for (auto &image_handle : m_SwapChainImages) {
+    VkExtent3D extent{m_SwapChainExtent.width, m_SwapChainExtent.height, 1};
+    m_swapchain_images.emplace_back(
+        Image::Create(m_device, image_handle, extent, m_SwapChainFormat, true));
   }
+  //   std::transform(
+  //       m_SwapChainImages.begin(), m_SwapChainImages.end(),
+  //       m_swapchain_images.end(), [this](VkImage  image_handle) {
+  //         VkExtent3D extent{m_SwapChainExtent.width,
+  //         m_SwapChainExtent.height, 1}; return Image::Create(m_device,
+  //         image_handle, extent, m_SwapChainFormat);
+  //       });
 }
- 
 
 VkResult SwapChain::Acquire_next_image(uint32_t &image_index,
                                        VkSemaphore present_finish_semaphore,

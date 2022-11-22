@@ -3,7 +3,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:15:15
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-22 13:29:55
+ * @LastEditTime: 2022-11-22 20:45:17
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Device.cpp
  * @Description: nullptr
  *
@@ -81,7 +81,9 @@ Device::Device(Instance::Ptr instance, PhysicalDevice::Ptr gpu,
   CreateAllocator();
   FillCommandQueues();
 }
-Device::~Device() { vkDestroyDevice(m_handle, nullptr); }
+Device::~Device() {
+     vkDestroyDevice(m_handle, nullptr); 
+     }
 void Device::CreateAllocator() {
 //   VmaVulkanFunctions vma_vulkan_func ;
 //   vma_vulkan_func.vkAllocateMemory = &vkAllocateMemory;

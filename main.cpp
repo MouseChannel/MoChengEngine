@@ -23,7 +23,7 @@ int main(int, char **) {
 //   return 1;
 
   MoChengEngine::App app;
-  app.InitWindow();
-  app.InitVulkan();
+  app.Run();
+//   app.InitVulkan();
   std::cout << "Hello, world!\n";
 }

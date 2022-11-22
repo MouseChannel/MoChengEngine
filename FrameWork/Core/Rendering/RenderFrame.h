@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:46:21
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-21 16:12:48
+ * @LastEditTime: 2022-11-22 14:03:12
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderFrame.h
  * @Description: nullptr
  *
@@ -19,7 +19,7 @@
 #include "FrameWork/Wrapper/Command/CommandQueue.h"
 #include "FrameWork/Wrapper/Device.h"
 #include "FrameWork/Wrapper/FrameBuffer.h"
-#include "FrameWork/Wrapper/RenderPass.h"
+ 
 #include "FrameWork/Wrapper/Semaphore.h"
 #include "vulkan/vulkan_core.h"
 

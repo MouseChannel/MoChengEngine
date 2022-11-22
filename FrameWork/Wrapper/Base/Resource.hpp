@@ -17,7 +17,7 @@ namespace MoChengEngine::FrameWork::Wrapper {
 template <typename T, typename K> class Resource : public Component<T, K> {
 public:
   Resource<T, K>(Device::Ptr device) : Component<T, K>{device} {}
-  ~Resource<T, K>();
+  ~Resource<T, K>() = default;
 
 protected:
   VmaAllocation allocation{VK_NULL_HANDLE};

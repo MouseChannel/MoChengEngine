@@ -39,19 +39,23 @@ Image::Image(const Device::Ptr device, const VkExtent3D extent,
                                   &memory_info, &m_handle, &allocation,
                                   nullptr),
                    "Create image failed");
-  CreateView(Make_View_Info(aspectFlags), m_device);
+  m_view = CreateView(Make_View_Info(aspectFlags), m_device);
 }
 Image::Image(const Device::Ptr &device, VkImage image_handle,
-             const VkExtent3D extent, VkFormat format )
-    : Resource<VkImage, Image>{device}, m_extent{extent}, m_format(format) {
+             const VkExtent3D extent, VkFormat format, bool auto_destroy)
+    : Resource<VkImage, Image>{device}, m_extent{extent}, m_format(format),
+      auto_destroy(auto_destroy) {
   m_handle = image_handle;
-  CreateView(Make_View_Info(VK_IMAGE_ASPECT_COLOR_BIT), m_device);
+  m_view = CreateView(Make_View_Info(VK_IMAGE_ASPECT_COLOR_BIT), m_device);
 }
 Image::~Image() {
-  if (m_view != VK_NULL_HANDLE) {
+  if (m_view != nullptr) {
     vkDestroyImageView(m_device->Get_handle(), m_view, nullptr);
   }
-  vmaDestroyImage(m_device->Get_allocator(), m_handle, allocation);
+  if (!auto_destroy) {
+
+    vmaDestroyImage(m_device->Get_allocator(), m_handle, allocation);
+  }
 }
 /*
 void Image::Bind_Image_Memory(const VkMemoryPropertyFlags properties) {
@@ -76,9 +80,7 @@ VkImageViewCreateInfo
 Image::Make_View_Info(const VkImageAspectFlags aspectFlags) {
   VkImageViewCreateInfo imageViewCreateInfo{};
   imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-  imageViewCreateInfo.viewType = m_imageType == VK_IMAGE_TYPE_2D
-                                     ? VK_IMAGE_VIEW_TYPE_2D
-                                     : VK_IMAGE_VIEW_TYPE_3D;
+  imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
   imageViewCreateInfo.format = m_format;
   imageViewCreateInfo.image = m_handle;
   imageViewCreateInfo.subresourceRange.aspectMask = aspectFlags;
@@ -159,8 +161,9 @@ void Image::SetImageLayout(VkImageLayout newLayout,
                                      dstStageMask);
   commandBuffer->End();
 }
-VkImageView CreateView(VkImageViewCreateInfo viewInfo, Device::Ptr device) {
-  VkImageView res;
+VkImageView Image::CreateView(VkImageViewCreateInfo viewInfo,
+                              Device::Ptr device) {
+  VkImageView res{nullptr};
   VK_CHECK_SUCCESS(
       vkCreateImageView(device->Get_handle(), &viewInfo, nullptr, &res),
       "Error: failed to create image view");

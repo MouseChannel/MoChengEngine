@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-11 13:46:02
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-22 13:32:51
+ * @LastEditTime: 2022-11-22 20:35:34
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Base\WrapperBase.hpp
  * @Description: nullptr
  *
@@ -15,7 +15,7 @@ namespace MoChengEngine::FrameWork::Wrapper {
 template <typename T, typename K> class WrapperBase {
 public:
   using Ptr = std::shared_ptr<K>;
-  T m_handle;
+  T m_handle{nullptr};
 
   static Ptr Create(auto... args) {
 

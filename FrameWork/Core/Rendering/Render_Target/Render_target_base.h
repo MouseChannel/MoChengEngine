@@ -36,7 +36,7 @@ private:
   VkExtent2D extent{0, 0};
   Wrapper::Image::Ptr images_ptr;
   VkImage image;
-  VkImageView image_view;
+  VkImageView image_view{nullptr};
 
   VkAttachmentDescription attachment_description;
 
