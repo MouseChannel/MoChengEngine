@@ -2,6 +2,7 @@
 #include "FrameWork/Wrapper/Image.h"
 #include "FrameWork/Wrapper/Swapchain.h"
 #include "vulkan/vulkan_core.h"
+#include <algorithm>
 #include <stdint.h>
 namespace MoChengEngine::FrameWork::Wrapper {
 SwapChain::SwapChain(Device::Ptr device, WindowSurface::Ptr surface)
@@ -54,8 +55,6 @@ SwapChain::SwapChain(Device::Ptr device, WindowSurface::Ptr surface)
                    "Error: failed to create swapChain");
 
   SpawnImages();
-
-  
 }
 SwapChain::~SwapChain() {}
 
@@ -157,13 +156,22 @@ void SwapChain::SpawnImages() {
   VK_CHECK_SUCCESS(vkGetSwapchainImagesKHR(m_device->Get_handle(), m_handle,
                                            &imageCount, nullptr),
                    "Create SwapChain Image Failed");
-  if (imageCount > 0) {
-    m_SwapChainImages.resize(imageCount);
-    VK_CHECK_SUCCESS(vkGetSwapchainImagesKHR(m_device->Get_handle(), m_handle,
-                                             &imageCount,
-                                             m_SwapChainImages.data()),
-                     "Create SwapChain Image Failed");
-  }
+  if (imageCount == 0)
+    return;
+
+  std::vector<VkImage> m_SwapChainImages(imageCount);
+
+  VK_CHECK_SUCCESS(vkGetSwapchainImagesKHR(m_device->Get_handle(), m_handle,
+                                           &imageCount,
+                                           m_SwapChainImages.data()),
+                   "Create SwapChain Image Failed");
+
+  std::transform(
+      m_SwapChainImages.begin(), m_SwapChainImages.end(),
+      m_swapchain_images.end(), [this](VkImage image_handle) {
+        VkExtent3D extent{m_SwapChainExtent.width, m_SwapChainExtent.height, 1};
+        return Image::Create(m_device, image_handle, extent, m_SwapChainFormat);
+      });
 
   return;
   // 生成图像管理器
@@ -182,19 +190,7 @@ void SwapChain::SpawnImages() {
     m_SwapChainImageViews[i] = Image::CreateView(imageViewCreateInfo, m_device);
   }
 }
-VkImageView SwapChain::SpawnImageView(VkImage image) {
-  VkImageViewCreateInfo imageViewCreateInfo{};
-  imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-  imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-  imageViewCreateInfo.format = m_SwapChainFormat;
-  imageViewCreateInfo.image = image;
-  imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-  imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
-  imageViewCreateInfo.subresourceRange.levelCount = 1;
-  imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
-  imageViewCreateInfo.subresourceRange.layerCount = 1;
-  return Image::CreateView(imageViewCreateInfo, m_device);
-}
+ 
 
 VkResult SwapChain::Acquire_next_image(uint32_t &image_index,
                                        VkSemaphore present_finish_semaphore,

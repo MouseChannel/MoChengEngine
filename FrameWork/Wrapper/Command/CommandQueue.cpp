@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:26:37
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-17 19:21:56
+ * @LastEditTime: 2022-11-20 13:28:06
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Command\CommandQueue.cpp
  * @Description: nullptr
  *
@@ -23,11 +23,19 @@ CommandQueue::CommandQueue(VkDevice device, uint32_t family_index,
   vkGetDeviceQueue(device, family_index, queue_index, &m_handle);
 }
 CommandQueue::~CommandQueue() {}
-VkResult CommandQueue::Submit(const std::vector<VkSubmitInfo >  &submit_infos, VkFence fence) {
+VkResult CommandQueue::Submit(const std::vector<VkSubmitInfo> &submit_infos,
+                              VkFence fence) {
   return vkQueueSubmit(m_handle, submit_infos.size(), submit_infos.data(),
                        fence);
 }
 VkResult CommandQueue::Present(VkPresentInfoKHR *present_info) {
   return vkQueuePresentKHR(m_handle, present_info);
+}
+
+// 等待commandBuffer队列里的所有command全完成
+void CommandQueue::Submit_and_wait(
+    const std::vector<VkSubmitInfo> &submit_infos, VkFence fence) {
+  VK_CHECK_SUCCESS(Submit(submit_infos, fence), "Submit command buffer failed");
+  VK_CHECK_SUCCESS(vkQueueWaitIdle(m_handle), "Command Queue wait failed");
 }
 } // namespace MoChengEngine::FrameWork::Wrapper

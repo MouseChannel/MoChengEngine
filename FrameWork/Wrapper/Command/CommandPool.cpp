@@ -13,7 +13,7 @@
 #include "vulkan/vulkan_core.h"
 namespace MoChengEngine::FrameWork::Wrapper {
 
-CommandPool::CommandPool(Device::Ptr &device, VkQueueFlags &queue_flags,
+CommandPool::CommandPool(Device::Ptr  device, VkQueueFlags  queue_flags,
                          VkCommandPoolCreateFlagBits flag)
     : Component<VkCommandPool, CommandPool>{device},
       queue_family_index{device->Get_queue_family_index_by_flag(queue_flags)} {

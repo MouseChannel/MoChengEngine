@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-15 15:19:29
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-19 14:27:10
+ * @LastEditTime: 2022-11-21 11:35:46
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Semaphore.h
  * @Description: nullptr
  *
@@ -20,7 +20,7 @@ private:
 
 public:
 
-  Semaphore(Device::Ptr &device);
+  Semaphore(Device::Ptr  device);
   ~Semaphore();
   
 };

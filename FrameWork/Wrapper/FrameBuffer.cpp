@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-14 21:37:39
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-19 21:35:16
+ * @LastEditTime: 2022-11-21 11:38:29
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\FrameBuffer.cpp
  * @Description: nullptr
  *
@@ -13,9 +13,9 @@
  
 
 namespace MoChengEngine::FrameWork::Wrapper {
-FrameBuffer::FrameBuffer(Device::Ptr &device, VkExtent2D &extent,
-                         std::vector<VkImageView> &attachments,
-                         RenderPass::Ptr &renderPass)
+FrameBuffer::FrameBuffer(Device::Ptr  device, VkExtent2D  extent,
+                         std::vector<VkImageView>  attachments,
+                         RenderPass::Ptr  renderPass)
     : Component<VkFrameBuffer, FrameBuffer>{device} {
 
   VkFramebufferCreateInfo frameBufferCreateInfo{};

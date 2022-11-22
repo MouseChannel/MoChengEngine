@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:26:21
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-18 14:21:22
+ * @LastEditTime: 2022-11-20 13:29:00
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Command\CommandQueue.h
  * @Description: nullptr
  *
@@ -34,6 +34,8 @@ public:
   VkResult Submit(const std::vector<VkSubmitInfo> &submit_infos, VkFence fence);
 
   VkResult Present(VkPresentInfoKHR *present_info);
+  void Submit_and_wait(const std::vector<VkSubmitInfo> &submit_infos,
+                       VkFence fence = VK_NULL_HANDLE);
   [[nodiscard]] auto &Get_family_propertie() { return familyProperties; }
   [[nodiscard]] bool PresentSupport() { return presentSupport; }
   [[nodiscard]] auto Get_family_index() { return family_index; }

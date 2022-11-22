@@ -3,14 +3,20 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:15:15
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-19 20:38:02
+ * @LastEditTime: 2022-11-22 13:29:55
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Device.cpp
  * @Description: nullptr
  *
  * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
  */
+
+// #include "FrameWork/Base/vmaExporter.cpp"
+#define VMA_IMPLEMENTATION
+#define VMA_DYNAMIC_VULKAN_FUNCTIONS 0
+// #include <vma/vk_mem_alloc.h>
 #include "Device.h"
 #include "FrameWork/Wrapper/Command/CommandPool.h"
+// #include "vma/vk_mem_alloc.h"
 
 #include "FrameWork/Wrapper/Command/CommandQueue.h"
 #include "FrameWork/Wrapper/Device.h"
@@ -20,6 +26,7 @@
 #include <memory>
 #include <stdexcept>
 
+// #include "vma/vk_mem_alloc.h"
 namespace MoChengEngine::FrameWork::Wrapper {
 
 Device::Device(Instance::Ptr instance, PhysicalDevice::Ptr gpu,
@@ -76,11 +83,36 @@ Device::Device(Instance::Ptr instance, PhysicalDevice::Ptr gpu,
 }
 Device::~Device() { vkDestroyDevice(m_handle, nullptr); }
 void Device::CreateAllocator() {
-  VmaAllocatorCreateInfo createInfo;
-  createInfo.physicalDevice = m_gpu->Get_handle();
-  createInfo.device = m_handle;
-  createInfo.instance = m_instance->Get_handle();
+//   VmaVulkanFunctions vma_vulkan_func ;
+//   vma_vulkan_func.vkAllocateMemory = &vkAllocateMemory;
+//   vma_vulkan_func.vkBindBufferMemory = &vkBindBufferMemory;
+//   vma_vulkan_func.vkBindImageMemory = &vkBindImageMemory;
+//   vma_vulkan_func.vkCreateBuffer = &vkCreateBuffer;
+//   vma_vulkan_func.vkCreateImage = &vkCreateImage;
+//   vma_vulkan_func.vkDestroyBuffer = &vkDestroyBuffer;
+//   vma_vulkan_func.vkDestroyImage = &vkDestroyImage;
+//   vma_vulkan_func.vkFlushMappedMemoryRanges = &vkFlushMappedMemoryRanges;
+//   vma_vulkan_func.vkFreeMemory = &vkFreeMemory;
+//   vma_vulkan_func.vkGetBufferMemoryRequirements =
+//       &vkGetBufferMemoryRequirements;
+//   vma_vulkan_func.vkGetImageMemoryRequirements = &vkGetImageMemoryRequirements;
+//   vma_vulkan_func.vkGetPhysicalDeviceMemoryProperties =
+//       &vkGetPhysicalDeviceMemoryProperties;
+//   vma_vulkan_func.vkGetPhysicalDeviceProperties =
+//       &vkGetPhysicalDeviceProperties;
+//   vma_vulkan_func.vkInvalidateMappedMemoryRanges =
+//       &vkInvalidateMappedMemoryRanges;
+//   vma_vulkan_func.vkMapMemory = &vkMapMemory;
+//   vma_vulkan_func.vkUnmapMemory = &vkUnmapMemory;
+//   vma_vulkan_func.vkCmdCopyBuffer = &vkCmdCopyBuffer;
 
+  VmaAllocatorCreateInfo createInfo;
+  createInfo.vulkanApiVersion = VK_API_VERSION_1_3;
+  createInfo.physicalDevice = m_gpu->Get_handle();
+  createInfo.device = Get_handle();
+  createInfo.instance = m_instance->Get_handle();
+//   createInfo.pVulkanFunctions = &vma_vulkan_func;
+  
   vmaCreateAllocator(&createInfo, &allocator);
 }
 std::vector<VkDeviceQueueCreateInfo> Device::MakeCommandQueueCreateInfo() {
@@ -94,12 +126,14 @@ std::vector<VkDeviceQueueCreateInfo> Device::MakeCommandQueueCreateInfo() {
        family_index++) {
     auto &current_family = queueFamilies[family_index];
     auto current_queue_count = current_family.queueCount;
-    queue_priorities[family_index].resize(current_queue_count, 1.0f);
+    // queue_priorities[family_index].resize(current_queue_count, 1.0f);
+    float queuePriority = 1.0;
     auto &queue_create_info = queueCreateInfos[family_index];
     queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queue_create_info.queueFamilyIndex = family_index;
     queue_create_info.queueCount = current_queue_count;
-    queue_create_info.pQueuePriorities = queue_priorities[family_index].data();
+    queue_create_info.pQueuePriorities = &queuePriority;
+    // queue_priorities[family_index].data();
   }
   return queueCreateInfos;
 }

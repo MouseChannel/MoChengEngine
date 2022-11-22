@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-08 12:26:03
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-19 22:08:17
+ * @LastEditTime: 2022-11-22 12:05:06
  * @FilePath: \MoChengEngine\FrameWork\Base\baseHeader.h
  * @Description: nullptr
  *
@@ -14,17 +14,18 @@
 #include <memory>
 #include <stdexcept>
 #include <vector>
+ 
 
 #define GLFW_INCLUDE_VULKAN
+#include <iostream>
+
+ 
+
+
+
 
 #include "error.h"
 #include <GLFW/glfw3.h>
-#include <iostream>
-#include <vulkan/vulkan.h>
-
-#define VMA_IMPLEMENTATION
-#include "vma/vk_mem_alloc.h"
-
 const std::vector<const char *> validationLayers = {
     "VK_LAYER_KHRONOS_validation"};
 

@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:46:25
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-18 17:50:25
+ * @LastEditTime: 2022-11-21 11:54:11
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderFrame.cpp
  * @Description: nullptr
  *
@@ -16,10 +16,10 @@
 #include "FrameWork/Wrapper/Semaphore.h"
 #include <algorithm>
 namespace MoChengEngine::FrameWork::Core::Rendering {
-RenderFrame::RenderFrame(Wrapper::Device::Ptr &device,
-                         RenderTarget::Ptr &renderTarget)
-    : m_device{device}, m_render_target{renderTarget},
-      m_swapchain_render_target{renderTarget},
+RenderFrame::RenderFrame(
+    Wrapper::Device::Ptr &device,
+    std::vector<std::unique_ptr<RenderTarget>>&& renderTarget)
+    : m_device{device}, m_swapchain_render_target{std::move(renderTarget)},
       m_render_finish_semaphore{Wrapper::Semaphore::Create(m_device)},
       m_present_finish_semaphore{Wrapper::Semaphore::Create(m_device)} {}
 

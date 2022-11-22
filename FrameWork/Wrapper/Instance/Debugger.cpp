@@ -2,8 +2,8 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-11 18:13:45
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-12 09:46:37
- * @FilePath: \MoChengEngine\FrameWork\Wrapper\Debugger.cpp
+ * @LastEditTime: 2022-11-22 11:12:58
+ * @FilePath: \MoChengEngine\FrameWork\Wrapper\Instance\Debugger.cpp
  * @Description: nullptr
  *
  * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
@@ -12,18 +12,19 @@
 #include "Debugger.h"
 #include "vulkan/vulkan_core.h"
 
-
 namespace MoChengEngine::FrameWork::Wrapper {
 Debugger::Debugger(Instance &instance) : m_instance{instance} {
 
   VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
 
   createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-  createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                               VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                               VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+  createInfo.messageSeverity =
+        // VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+      VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+      VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 
-  createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+  createInfo.messageType =
+   VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
                            VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 
@@ -45,7 +46,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL Debugger::debugCallBack(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT *pMessageData, void *pUserData) {
-  std::cout << "ValidationLayer: " << pMessageData->pMessage << std::endl;
+
+  std::cout << "ValidationLayer: " << pMessageData->pMessage << std::endl
+            << std::endl;
 
   return VK_FALSE;
 }

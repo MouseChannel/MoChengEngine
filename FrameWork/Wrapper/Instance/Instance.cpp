@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-11 13:40:27
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-13 12:08:43
+ * @LastEditTime: 2022-11-21 11:34:22
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Instance\Instance.cpp
  * @Description: nullptr
  *
@@ -125,7 +125,7 @@ void Instance::QueryGPUs() {
 
   // Create gpus wrapper objects from the VkPhysicalDevice's
   for (auto &physical_device : physical_devices) {
-    gpus.push_back(PhysicalDevice::Create(physical_device));
+    gpus.emplace_back(PhysicalDevice::Create(physical_device));
   }
 }
 } // namespace MoChengEngine::FrameWork::Wrapper

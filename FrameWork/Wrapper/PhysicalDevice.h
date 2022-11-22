@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-11 13:20:09
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-15 10:29:02
+ * @LastEditTime: 2022-11-21 11:34:58
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\PhysicalDevice.h
  * @Description: nullptr
  *
@@ -34,7 +34,7 @@ private:
   bool CheckSupport(VkQueueFlagBits bit);
 
 public:
-  PhysicalDevice(VkPhysicalDevice &physicalDevice);
+  PhysicalDevice(VkPhysicalDevice  physicalDevice);
   ~PhysicalDevice();
 
   bool IsPresentSupport(int queueFamilyIndex, VkSurfaceKHR surface);

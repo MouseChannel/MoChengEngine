@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 14:36:52
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-19 16:46:44
+ * @LastEditTime: 2022-11-20 20:04:06
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Command\CommandBuffer.h
  * @Description: nullptr
  *
@@ -15,7 +15,7 @@
 #include "FrameWork/Wrapper/Device.h"
 #include "FrameWork/Wrapper/FrameBuffer.h"
 #include "FrameWork/Wrapper/RenderPass.h"
-
+#include "vulkan/vulkan_core.h"
 
 namespace MoChengEngine::FrameWork::Wrapper {
 
@@ -45,6 +45,9 @@ public:
   void CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage,
                          VkImageLayout dstImageLayout, uint32_t width,
                          uint32_t height);
+  void TransferImageLayout(VkImageMemoryBarrier &imageMemoryBarrier,
+                           VkPipelineStageFlags srcStageMask,
+                           VkPipelineStageFlags dstStageMask);
   //   [[nodiscard]] VkCommandBuffer Get_handle() { return m_handle; }
 };
 } // namespace MoChengEngine::FrameWork::Wrapper

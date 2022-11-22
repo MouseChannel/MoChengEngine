@@ -1,62 +1,20 @@
-#include "Pipeline.h"
-#include "FrameWork/Wrapper/Pipeline.h"
-#include "FrameWork/Wrapper/ShaderModule.h"
-#include "FrameWork/Wrapper/Image.h"
-
+/*
+ * @Author: mousechannel mochenghh@gmail.com
+ * @Date: 2022-11-21 17:38:49
+ * @LastEditors: mousechannel mochenghh@gmail.com
+ * @LastEditTime: 2022-11-22 10:17:37
+ * @FilePath: \MoChengEngine\FrameWork\Wrapper\Pipeline\Pipeline_state.cpp
+ * @Description: nullptr
+ *
+ * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
+ */
+#include "Pipeline_state.h"
+#include "FrameWork/Wrapper/Pipeline/Pipeline_state.h"
 namespace MoChengEngine::FrameWork::Wrapper {
-Pipeline::Pipeline(Device::Ptr &device)
-    : Component<VkPipeline, Pipeline>{device} {}
-Pipeline::~Pipeline() {
-  vkDestroyPipelineLayout(m_device->Get_handle(), m_layout, nullptr);
-  vkDestroyPipeline(m_device->Get_handle(), m_handle, nullptr);
-}
+PipelineState::PipelineState() {}
+PipelineState::~PipelineState() {}
 
-void Pipeline::Build_pipeline(
-    RenderPass::Ptr renderpass,
-    std::vector<VkPipelineShaderStageCreateInfo> &shaders_stage) {
-  VkGraphicsPipelineCreateInfo pipelineCreateInfo{};
-  pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-
-  pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaders_stage.size());
-  pipelineCreateInfo.pStages = shaders_stage.data();
-
-  pipelineCreateInfo.pVertexInputState = &m_VertexInputInfo;
-  pipelineCreateInfo.pInputAssemblyState = &m_InputAssembly;
-  pipelineCreateInfo.pViewportState = &m_Viewport;
-  pipelineCreateInfo.pRasterizationState = &m_Rasterizer;
-  pipelineCreateInfo.pMultisampleState = &m_Multisampling;
-  pipelineCreateInfo.pDepthStencilState = &m_DepthStencilState;
-  // stencil
-  pipelineCreateInfo.pColorBlendState = &m_BlendState;
-
-  pipelineCreateInfo.layout = m_layout;
-  pipelineCreateInfo.renderPass = renderpass->Get_handle();
-  pipelineCreateInfo.subpass = 0;
-
-  // �Դ��ڵ�pipelineΪ�������д���������죬������Ҫָ��flagsΪVK_PIPELINE_CREATE_DERIVATIVE_BIT
-  pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
-  pipelineCreateInfo.basePipelineIndex = -1;
-}
-void Pipeline::Set_pipeline_state(
-    std::vector<VkVertexInputBindingDescription> &vertexbindindDes,
-    std::vector<VkVertexInputAttributeDescription> &attributeDes,
-    VkDescriptorSetLayout &layout) {
-
-  Make_VertexInput_Info(vertexbindindDes, attributeDes);
-  Make_AssemblyInput_Info();
-  Make_ViewPort_Info();
-  Make_Raster_Info();
-  Make_MultiSample_Info();
-  Make_BlendAttachment_Info();
-  Make_BlendState_Info();
-  Make_DepthStecil_Info();
-  Make_LayoutCreate_Info(layout);
-
-
- 
-  
-}
-void Pipeline::Make_VertexInput_Info(
+void PipelineState::Make_VertexInput_Info(
     std::vector<VkVertexInputBindingDescription> &vertexbindingDes,
     std::vector<VkVertexInputAttributeDescription> &attributeDes) {
   m_VertexInputInfo.sType =
@@ -67,7 +25,7 @@ void Pipeline::Make_VertexInput_Info(
   m_VertexInputInfo.pVertexAttributeDescriptions = attributeDes.data();
 }
 
-void Pipeline::Make_AssemblyInput_Info() {
+void PipelineState::Make_AssemblyInput_Info() {
   m_InputAssembly.sType =
       VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 
@@ -75,7 +33,7 @@ void Pipeline::Make_AssemblyInput_Info() {
   m_InputAssembly.primitiveRestartEnable = VK_FALSE;
 }
 
-void Pipeline::Make_ViewPort_Info() {
+void PipelineState::Make_ViewPort_Info() {
   m_Viewport.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 
   m_Viewport.viewportCount = static_cast<uint32_t>(m_Viewports.size());
@@ -84,7 +42,7 @@ void Pipeline::Make_ViewPort_Info() {
   m_Viewport.pScissors = m_Scissors.data();
 }
 
-void Pipeline::Make_Raster_Info() {
+void PipelineState::Make_Raster_Info() {
   m_Rasterizer.sType =
       VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
   m_Rasterizer.polygonMode = VK_POLYGON_MODE_FILL; // ����ģʽ��Ҫ����gpu����
@@ -97,19 +55,19 @@ void Pipeline::Make_Raster_Info() {
   m_Rasterizer.depthBiasSlopeFactor = 0.0f;
 }
 
-void Pipeline::Make_MultiSample_Info() {
+void PipelineState::Make_MultiSample_Info(VkSampleCountFlagBits samples) {
   m_Multisampling.sType =
       VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 
   m_Multisampling.sampleShadingEnable = VK_FALSE;
-  m_Multisampling.rasterizationSamples = m_device->getMaxUsableSampleCount();
+  m_Multisampling.rasterizationSamples = samples;
   m_Multisampling.minSampleShading = 1.0f;
   m_Multisampling.pSampleMask = nullptr;
   m_Multisampling.alphaToCoverageEnable = VK_FALSE;
   m_Multisampling.alphaToOneEnable = VK_FALSE;
 }
 
-void Pipeline::Make_BlendAttachment_Info() {
+void PipelineState::Make_BlendAttachment_Info() {
   VkPipelineColorBlendAttachmentState blendAttachment{};
 
   blendAttachment.colorWriteMask =
@@ -127,7 +85,7 @@ void Pipeline::Make_BlendAttachment_Info() {
   m_BlendAttachments.push_back(blendAttachment);
 }
 
-void Pipeline::Make_BlendState_Info() {
+void PipelineState::Make_BlendState_Info() {
   m_BlendState.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
   m_BlendState.logicOpEnable = VK_FALSE;
   m_BlendState.logicOp = VK_LOGIC_OP_COPY;
@@ -142,11 +100,28 @@ void Pipeline::Make_BlendState_Info() {
   m_BlendState.pAttachments = m_BlendAttachments.data();
 }
 
-void Pipeline::Make_LayoutCreate_Info(VkDescriptorSetLayout &layout) {
+void PipelineState::Make_LayoutCreate_Info(VkDescriptorSetLayout layout) {
   m_LayoutState.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
   m_LayoutState.setLayoutCount = 1;
   m_LayoutState.pSetLayouts = &layout;
   m_LayoutState.pushConstantRangeCount = 0;
   m_LayoutState.pPushConstantRanges = nullptr;
+}
+void PipelineState::Set_Viewports_and_Scissors(
+    const std::vector<VkViewport> &viewports,
+    const std::vector<VkRect2D> &scissors) {
+  m_Viewports = viewports;
+  m_Scissors = scissors;
+}
+void PipelineState::Set_renderpass(RenderPass::Ptr renderpass) {
+  m_renderpass = renderpass;
+}
+void PipelineState::fill_default() {
+  Make_AssemblyInput_Info();
+  Make_ViewPort_Info();
+  Make_Raster_Info();
+  Make_BlendAttachment_Info();
+  Make_BlendState_Info();
+  Make_DepthStecil_Info();
 }
 } // namespace MoChengEngine::FrameWork::Wrapper

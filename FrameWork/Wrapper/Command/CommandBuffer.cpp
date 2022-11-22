@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 14:36:55
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-19 16:46:33
+ * @LastEditTime: 2022-11-20 20:03:52
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Command\CommandBuffer.cpp
  * @Description: nullptr
  *
@@ -91,4 +91,12 @@ void CommandBuffer::CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage,
                          &region);
 }
 
+void CommandBuffer::TransferImageLayout(
+    VkImageMemoryBarrier &imageMemoryBarrier, VkPipelineStageFlags srcStageMask,
+    VkPipelineStageFlags dstStageMask) {
+  vkCmdPipelineBarrier(m_handle, srcStageMask, dstStageMask, 0, 0,
+                       nullptr,    // MemoryBarrier
+                       0, nullptr, // BufferMemoryBarrier
+                       1, &imageMemoryBarrier);
+}
 } // namespace MoChengEngine::FrameWork::Wrapper

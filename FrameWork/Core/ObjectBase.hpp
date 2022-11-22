@@ -2,11 +2,11 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-15 09:20:44
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-15 09:21:40
+ * @LastEditTime: 2022-11-20 13:50:42
  * @FilePath: \MoChengEngine\FrameWork\Core\ObjectBase.hpp
  * @Description: nullptr
- * 
- * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved. 
+ *
+ * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
  */
 #pragma once
 #include <memory>
@@ -20,4 +20,4 @@ public:
     return std::make_shared<T>(std::forward<decltype(args)>(args)...);
   }
 };
-} // namespace MoChengEngine::FrameWork::Wrapper
+} // namespace MoChengEngine::FrameWork::Core

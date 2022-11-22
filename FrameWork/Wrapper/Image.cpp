@@ -42,8 +42,7 @@ Image::Image(const Device::Ptr device, const VkExtent3D extent,
   CreateView(Make_View_Info(aspectFlags), m_device);
 }
 Image::Image(const Device::Ptr &device, VkImage image_handle,
-             const VkExtent3D extent, VkFormat format,
-             const VkImageUsageFlags usage, VkSampleCountFlagBits sample_count)
+             const VkExtent3D extent, VkFormat format )
     : Resource<VkImage, Image>{device}, m_extent{extent}, m_format(format) {
   m_handle = image_handle;
   CreateView(Make_View_Info(VK_IMAGE_ASPECT_COLOR_BIT), m_device);
@@ -112,7 +111,54 @@ void Image::SetImageLayout(VkImageLayout newLayout,
                            VkPipelineStageFlags srcStageMask,
                            VkPipelineStageFlags dstStageMask,
                            VkImageSubresourceRange subresrouceRange,
-                           CommandBuffer::Ptr commandBuffer) {}
+                           CommandBuffer::Ptr &commandBuffer) {
+  auto &oldLayout = m_layout;
+  VkImageMemoryBarrier imageMemoryBarrier{};
+  imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+  imageMemoryBarrier.oldLayout = oldLayout;
+  imageMemoryBarrier.newLayout = newLayout;
+  imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+  imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+  imageMemoryBarrier.image = m_handle;
+  imageMemoryBarrier.subresourceRange = subresrouceRange;
+  switch (oldLayout) {
+    // 说明图片刚被创建，上方是初始化的虚拟操作
+  case VK_IMAGE_LAYOUT_UNDEFINED:
+    imageMemoryBarrier.srcAccessMask = 0;
+    break;
+    // 如果要写入该图片，需要等待write操作完成
+  case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+    imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    break;
+  default:
+    break;
+  }
+
+  switch (newLayout) {
+    // 如果目标是：将图片作为被写入的对象，则被阻塞的操作必定是write操作
+  case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+    imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    break;
+    // 如果目标是：将格式转化为一个可读的纹理，那么被阻塞的必定是read操作
+    // 如果该image作为texture，那么来源只能是：1.通过map从cpu端拷贝过来，2.通过stagingBuffer拷贝而来
+  case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+    imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    break;
+  case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL: {
+    imageMemoryBarrier.dstAccessMask =
+        VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+  } break;
+  case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL: {
+    imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+  } break;
+  default:
+    break;
+  }
+  commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+  commandBuffer->TransferImageLayout(imageMemoryBarrier, srcStageMask,
+                                     dstStageMask);
+  commandBuffer->End();
+}
 VkImageView CreateView(VkImageViewCreateInfo viewInfo, Device::Ptr device) {
   VkImageView res;
   VK_CHECK_SUCCESS(

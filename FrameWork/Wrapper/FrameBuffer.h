@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-14 21:37:36
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-17 18:34:52
+ * @LastEditTime: 2022-11-21 11:38:23
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\FrameBuffer.h
  * @Description: nullptr
  *
@@ -22,10 +22,10 @@ private:
  
 
 public:
-  FrameBuffer(Device::Ptr &device, VkExtent2D &extent,
-              std::vector<VkImageView> &attachments,
+  FrameBuffer(Device::Ptr  device, VkExtent2D  extent,
+              std::vector<VkImageView>  attachments,
 
-              RenderPass::Ptr &renderPass);
+              RenderPass::Ptr  renderPass);
   ~FrameBuffer();
 };
 } // namespace MoChengEngine::FrameWork::Wrapper

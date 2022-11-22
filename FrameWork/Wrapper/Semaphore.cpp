@@ -11,7 +11,7 @@
 #include "Semaphore.h"
 #include "vulkan/vulkan_core.h"
 namespace MoChengEngine::FrameWork::Wrapper {
-Semaphore::Semaphore(Device::Ptr &device) : Component<VkSemaphore, Semaphore>{device} {
+Semaphore::Semaphore(Device::Ptr  device) : Component<VkSemaphore, Semaphore>{device} {
   VkSemaphoreCreateInfo createInfo;
   createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
   VK_CHECK_SUCCESS(vkCreateSemaphore(m_device->Get_handle(), &createInfo,

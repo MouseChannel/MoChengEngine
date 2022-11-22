@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-11 13:20:09
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-18 14:16:26
+ * @LastEditTime: 2022-11-21 11:35:13
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\PhysicalDevice.cpp
  * @Description: nullptr
  *
@@ -16,7 +16,7 @@
 #include <stdexcept>
 
 namespace MoChengEngine::FrameWork::Wrapper {
-PhysicalDevice::PhysicalDevice(VkPhysicalDevice &physicalDevice) {
+PhysicalDevice::PhysicalDevice(VkPhysicalDevice  physicalDevice) {
   m_handle = physicalDevice;
   vkGetPhysicalDeviceFeatures(m_handle, &m_features);
   vkGetPhysicalDeviceProperties(m_handle, &m_properties);

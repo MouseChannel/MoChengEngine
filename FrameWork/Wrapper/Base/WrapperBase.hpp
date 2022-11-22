@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-11 13:46:02
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-19 21:40:48
+ * @LastEditTime: 2022-11-22 13:32:51
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Base\WrapperBase.hpp
  * @Description: nullptr
  *
@@ -17,11 +17,11 @@ public:
   using Ptr = std::shared_ptr<K>;
   T m_handle;
 
-  static Ptr Create(auto &...args) {
+  static Ptr Create(auto... args) {
 
     return std::make_shared<K>(std::forward<decltype(args)>(args)...);
   }
 
-  [[nodiscard]] T &Get_handle() { return m_handle; };
+  [[nodiscard]] T  &Get_handle() { return m_handle; };
 };
 } // namespace MoChengEngine::FrameWork::Wrapper

@@ -2,13 +2,14 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:15:12
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-19 21:34:30
+ * @LastEditTime: 2022-11-22 12:07:22
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Device.h
  * @Description: nullptr
  *
  * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
  */
 #pragma once
+ #include <vma/vk_mem_alloc.h>
 #include "FrameWork/Base/baseHeader.h"
 
 #include "FrameWork/Wrapper/Base/WrapperBase.hpp"

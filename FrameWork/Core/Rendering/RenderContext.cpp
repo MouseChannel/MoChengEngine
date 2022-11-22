@@ -2,17 +2,20 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-13 12:34:10
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-18 14:23:46
+ * @LastEditTime: 2022-11-22 13:32:17
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderContext.cpp
  * @Description: nullptr
- * 
- * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved. 
+ *
+ * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
  */
-
 
 #include "RenderContext.h"
 #include "FrameWork/Core/Rendering/RenderContext.h"
-#include "FrameWork/Core/Rendering/RenderTarget.h"
+#include "FrameWork/Core/Rendering/RenderFrame.h"
+#include "FrameWork/Core/Rendering/Render_Target/Muti_Sampler_RenderTarget.h"
+
+#include "FrameWork/Core/Rendering/Render_Target/Depth_RenderTarget.h"
+#include "FrameWork/Wrapper/Command/CommandBuffer.h"
 #include "FrameWork/Wrapper/Device.h"
 #include "FrameWork/Wrapper/Glfw_Window.h"
 #include "FrameWork/Wrapper/Image.h"
@@ -20,6 +23,9 @@
 #include "FrameWork/Wrapper/Swapchain.h"
 #include "FrameWork/Wrapper/WindowSurface.h"
 #include "vulkan/vulkan_core.h"
+#include <algorithm>
+#include <memory>
+#include <vector>
 namespace MoChengEngine::FrameWork::Core::Rendering {
 RenderContext::RenderContext(Wrapper::Device::Ptr device,
                              Wrapper::Glfw_Window_my::Ptr window,
@@ -30,32 +36,33 @@ RenderContext::RenderContext(Wrapper::Device::Ptr device,
 }
 RenderContext::~RenderContext() {}
 void RenderContext::Prepare() {
-  auto swapchain_images = m_swap_chain->Get_images();
-  std::vector<VkImageView> swapchain_images_view;
-  std::transform(
-      swapchain_images.begin(), swapchain_images.end(),
-      swapchain_images_view.end(), [this](VkImage image_handle) {
-        VkImageViewCreateInfo imageViewCreateInfo{};
-        imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        imageViewCreateInfo.format = m_swap_chain->Get_format();
-        imageViewCreateInfo.image = image_handle;
-        imageViewCreateInfo.subresourceRange.aspectMask =
-            VK_IMAGE_ASPECT_COLOR_BIT;
-        imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
-        imageViewCreateInfo.subresourceRange.levelCount = 1;
-        imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
-        imageViewCreateInfo.subresourceRange.layerCount = 1;
-        return Wrapper::Image::CreateView(imageViewCreateInfo, m_device);
-      });
 
-  auto render_target = RenderTarget::Create(
-      swapchain_images, swapchain_images_view, m_swap_chain->Get_extent2D());
-  render_frames.emplace_back(
-      std::make_unique<RenderFrame>(m_device, render_target));
+  // make render_targets and fill render_frames
+
+  for (auto i = 0; i < m_swap_chain->Get_image_count(); i++) {
+    std::vector<std::unique_ptr<RenderTarget>> current_frame_render_targets;
+    // first: origin swap_chain_image
+    current_frame_render_targets.emplace_back(
+        RenderTarget::DEFAULT_Convert_FUNC(m_swap_chain->Get_images()[i]));
+
+    // second: Muti_Sampler_RenderTarget
+    current_frame_render_targets.emplace_back(
+        Muti_Sampler_RenderTarget::DEFAULT_Convert_FUNC(
+            Muti_Sampler_RenderTarget::DEFAULT_IMAGE_CREATE_FUNC(
+                m_swap_chain)));
+    // third: depth_RenderTarget
+    current_frame_render_targets.emplace_back(
+        Depth_RenderTarget::DEFAULT_Convert_FUNC(
+            Depth_RenderTarget::DEFAULT_IMAGE_CREATE_FUNC(m_swap_chain)));
+    render_frames.emplace_back(std::make_unique<RenderFrame>(
+        m_device, std::move(current_frame_render_targets)));
+  }
 }
 
-Wrapper::CommandBuffer::Ptr RenderContext::Begin() { Begin_frame(); return Get_current_frame()->request_command_buffer(m_command_queue);}
+Wrapper::CommandBuffer::Ptr RenderContext::Begin() {
+  Begin_frame();
+  return Get_active_frame()->request_command_buffer(m_command_queue);
+}
 
 void RenderContext::Begin_frame() {
   auto &prev_frame = render_frames[active_frame_index];
@@ -85,7 +92,7 @@ void RenderContext::Submit(Wrapper::CommandBuffer::Ptr commandBuffer) {
   // 提交哪些命令
 
   submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = &commandBuffer->Get_handle();
+  submitInfo.pCommandBuffers = & commandBuffer->Get_handle();
 
   submitInfo.signalSemaphoreCount = 1;
   submitInfo.pSignalSemaphores =
@@ -103,6 +110,31 @@ void RenderContext::End_frame(VkSemaphore submit_finish_semaphone) {
   present_info.pSwapchains = &m_swap_chain->Get_handle();
   present_info.pImageIndices = &active_frame_index;
   m_command_queue->Present(&present_info);
+}
+void RenderContext::Add_Prepare_command_buffers(
+    std::vector<Wrapper::CommandBuffer::Ptr> command_buffers) {
+  std::transform(command_buffers.begin(), command_buffers.end(),
+                 prepared_command_buffers.end(),
+                 [](Wrapper::CommandBuffer::Ptr command_buffer_ptr) {
+                   return command_buffer_ptr;
+                 });
+}
+
+void RenderContext::Wait_all_prepared_command_buffers_finish() {
+  std::vector<VkCommandBuffer> command_buffer_handles;
+  std::transform(prepared_command_buffers.begin(),
+                 prepared_command_buffers.end(), command_buffer_handles.end(),
+                 [](Wrapper::CommandBuffer::Ptr command_buffer_ptr) {
+                   return command_buffer_ptr->Get_handle();
+                 });
+  VkSubmitInfo submitInfo{};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+  submitInfo.commandBufferCount = prepared_command_buffers.size();
+  submitInfo.pCommandBuffers = command_buffer_handles.data();
+  vkQueueSubmit(m_command_queue->Get_handle(), 1, &submitInfo, VK_NULL_HANDLE);
+  vkQueueWaitIdle(m_command_queue->Get_handle());
+  prepared_command_buffers.clear();
 }
 
 } // namespace MoChengEngine::FrameWork::Core::Rendering

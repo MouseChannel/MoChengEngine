@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:08:46
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-19 19:25:16
+ * @LastEditTime: 2022-11-20 21:55:09
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Swapchain.h
  * @Description: nullptr
  *
@@ -15,7 +15,7 @@
 #include "FrameWork/Base/baseHeader.h"
 #include "FrameWork/Wrapper/Base/Component.hpp"
 #include "FrameWork/Wrapper/WindowSurface.h"
-#include "vulkan/vulkan_core.h"
+#include "FrameWork/Wrapper/Image.h"
 
 
 namespace MoChengEngine::FrameWork::Wrapper {
@@ -34,11 +34,12 @@ private:
   WindowSurface::Ptr m_surface;
   uint32_t imageCount{0};
   VkExtent2D m_SwapChainExtent;
-  std::vector<VkImage> m_SwapChainImages{};
+  std::vector<Image::Ptr> m_swapchain_images;
+ 
   // image管理器
   std::vector<VkImageView> m_SwapChainImageViews{};
   void SpawnImages();
-  VkImageView SpawnImageView(VkImage image);
+ 
 
   SwapChainSupportInfo QuerySwapChainSupportInfo();
   VkSurfaceFormatKHR
@@ -54,7 +55,7 @@ public:
                               VkSemaphore present_finish_semaphore,
                               VkFence fence);
 
-  [[nodiscard]] auto &Get_images() { return m_SwapChainImages; }
+  [[nodiscard]] auto &Get_images() { return m_swapchain_images; }
   [[nodiscard]] auto &Get_images_view() { return m_SwapChainImageViews; }
   [[nodiscard]] auto &Get_format() { return m_SwapChainFormat; }
   [[nodiscard]] auto &Get_extent2D() { return m_SwapChainExtent; }
