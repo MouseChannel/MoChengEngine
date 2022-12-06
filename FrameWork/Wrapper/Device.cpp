@@ -3,17 +3,16 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:15:15
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-22 20:45:17
+ * @LastEditTime: 2022-12-01 11:22:24
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Device.cpp
  * @Description: nullptr
  *
  * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
  */
 
-// #include "FrameWork/Base/vmaExporter.cpp"
-#define VMA_IMPLEMENTATION
-#define VMA_DYNAMIC_VULKAN_FUNCTIONS 0
-// #include <vma/vk_mem_alloc.h>
+ 
+
+// #define VMA_IMPLEMENTATION
 #include "Device.h"
 #include "FrameWork/Wrapper/Command/CommandPool.h"
 // #include "vma/vk_mem_alloc.h"
@@ -25,7 +24,7 @@
 #include "vulkan/vulkan_core.h"
 #include <memory>
 #include <stdexcept>
-
+#include "FrameWork/Base/vmaExporter.cpp"
 // #include "vma/vk_mem_alloc.h"
 namespace MoChengEngine::FrameWork::Wrapper {
 
@@ -81,40 +80,40 @@ Device::Device(Instance::Ptr instance, PhysicalDevice::Ptr gpu,
   CreateAllocator();
   FillCommandQueues();
 }
-Device::~Device() {
-     vkDestroyDevice(m_handle, nullptr); 
-     }
+Device::~Device() { vkDestroyDevice(m_handle, nullptr); }
 void Device::CreateAllocator() {
-//   VmaVulkanFunctions vma_vulkan_func ;
-//   vma_vulkan_func.vkAllocateMemory = &vkAllocateMemory;
-//   vma_vulkan_func.vkBindBufferMemory = &vkBindBufferMemory;
-//   vma_vulkan_func.vkBindImageMemory = &vkBindImageMemory;
-//   vma_vulkan_func.vkCreateBuffer = &vkCreateBuffer;
-//   vma_vulkan_func.vkCreateImage = &vkCreateImage;
-//   vma_vulkan_func.vkDestroyBuffer = &vkDestroyBuffer;
-//   vma_vulkan_func.vkDestroyImage = &vkDestroyImage;
-//   vma_vulkan_func.vkFlushMappedMemoryRanges = &vkFlushMappedMemoryRanges;
-//   vma_vulkan_func.vkFreeMemory = &vkFreeMemory;
-//   vma_vulkan_func.vkGetBufferMemoryRequirements =
-//       &vkGetBufferMemoryRequirements;
-//   vma_vulkan_func.vkGetImageMemoryRequirements = &vkGetImageMemoryRequirements;
-//   vma_vulkan_func.vkGetPhysicalDeviceMemoryProperties =
-//       &vkGetPhysicalDeviceMemoryProperties;
-//   vma_vulkan_func.vkGetPhysicalDeviceProperties =
-//       &vkGetPhysicalDeviceProperties;
-//   vma_vulkan_func.vkInvalidateMappedMemoryRanges =
-//       &vkInvalidateMappedMemoryRanges;
-//   vma_vulkan_func.vkMapMemory = &vkMapMemory;
-//   vma_vulkan_func.vkUnmapMemory = &vkUnmapMemory;
-//   vma_vulkan_func.vkCmdCopyBuffer = &vkCmdCopyBuffer;
+  //   VmaVulkanFunctions vma_vulkan_func ;
+  //   vma_vulkan_func.vkAllocateMemory = &vkAllocateMemory;
+  //   vma_vulkan_func.vkBindBufferMemory = &vkBindBufferMemory;
+  //   vma_vulkan_func.vkBindImageMemory = &vkBindImageMemory;
+  //   vma_vulkan_func.vkCreateBuffer = &vkCreateBuffer;
+  //   vma_vulkan_func.vkCreateImage = &vkCreateImage;
+  //   vma_vulkan_func.vkDestroyBuffer = &vkDestroyBuffer;
+  //   vma_vulkan_func.vkDestroyImage = &vkDestroyImage;
+  //   vma_vulkan_func.vkFlushMappedMemoryRanges = &vkFlushMappedMemoryRanges;
+  //   vma_vulkan_func.vkFreeMemory = &vkFreeMemory;
+  //   vma_vulkan_func.vkGetBufferMemoryRequirements =
+  //       &vkGetBufferMemoryRequirements;
+  //   vma_vulkan_func.vkGetImageMemoryRequirements =
+  //   &vkGetImageMemoryRequirements;
+  //   vma_vulkan_func.vkGetPhysicalDeviceMemoryProperties =
+  //       &vkGetPhysicalDeviceMemoryProperties;
+  //   vma_vulkan_func.vkGetPhysicalDeviceProperties =
+  //       &vkGetPhysicalDeviceProperties;
+  //   vma_vulkan_func.vkInvalidateMappedMemoryRanges =
+  //       &vkInvalidateMappedMemoryRanges;
+  //   vma_vulkan_func.vkMapMemory = &vkMapMemory;
+  //   vma_vulkan_func.vkUnmapMemory = &vkUnmapMemory;
+  //   vma_vulkan_func.vkCmdCopyBuffer = &vkCmdCopyBuffer;
 
   VmaAllocatorCreateInfo createInfo;
   createInfo.vulkanApiVersion = VK_API_VERSION_1_3;
   createInfo.physicalDevice = m_gpu->Get_handle();
   createInfo.device = Get_handle();
   createInfo.instance = m_instance->Get_handle();
-//   createInfo.pVulkanFunctions = &vma_vulkan_func;
-  
+  createInfo.pVulkanFunctions = nullptr;
+  createInfo.pAllocationCallbacks = nullptr;
+
   vmaCreateAllocator(&createInfo, &allocator);
 }
 std::vector<VkDeviceQueueCreateInfo> Device::MakeCommandQueueCreateInfo() {

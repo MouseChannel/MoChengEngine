@@ -172,7 +172,7 @@ void SwapChain::SpawnImages() {
   for (auto &image_handle : m_SwapChainImages) {
     VkExtent3D extent{m_SwapChainExtent.width, m_SwapChainExtent.height, 1};
     m_swapchain_images.emplace_back(
-        Image::Create(m_device, image_handle, extent, m_SwapChainFormat, true));
+        Image::CreateR(m_device, image_handle, extent, m_SwapChainFormat, true));
   }
   //   std::transform(
   //       m_SwapChainImages.begin(), m_SwapChainImages.end(),

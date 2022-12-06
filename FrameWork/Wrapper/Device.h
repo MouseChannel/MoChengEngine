@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:15:12
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-22 12:07:22
+ * @LastEditTime: 2022-12-01 11:08:57
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Device.h
  * @Description: nullptr
  *
@@ -57,7 +57,7 @@ public:
   }
 
   //   [[nodiscard]] VkDevice Get_handle() const { return m_handle; }
-  [[nodiscard]] auto &Get_gpu() const { return m_gpu; }
+  [[nodiscard]] auto Get_gpu() const { return m_gpu; }
   [[nodiscard]] auto &Get_allocator() { return allocator; }
 };
 } // namespace MoChengEngine::FrameWork::Wrapper

@@ -14162,7 +14162,7 @@ void VmaAllocator_T::ImportVulkanFunctions(const VmaVulkanFunctions* pVulkanFunc
 
     if(pVulkanFunctions != VMA_NULL)
     {
-       // ImportVulkanFunctions_Custom(pVulkanFunctions);
+       ImportVulkanFunctions_Custom(pVulkanFunctions);
     }
 
 #if VMA_DYNAMIC_VULKAN_FUNCTIONS == 1

@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-07 21:45:47
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-19 20:19:22
+ * @LastEditTime: 2022-11-30 21:35:38
  * @FilePath: \MoChengEngine\main.cpp
  * @Description: nullptr
  *
@@ -10,7 +10,9 @@
  */
 
 // #include "FrameWork/Base/Singleton.hpp"
-#include "G_Example/app.hpp"
+#include "G_Example/app.h"
+
+// #include "G_Example/app.cpp"
 #include "FrameWork/Base/baseHeader.h"
 // using PTR = MoChengEngine::FrameWork::Wrapper::VInstance::Ptr;
 #include <vector>

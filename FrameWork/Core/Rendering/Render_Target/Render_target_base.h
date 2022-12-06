@@ -2,8 +2,12 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:56:50
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-21 12:03:30
- * @FilePath:
+ * @LastEditTime: 2022-12-01 09:05:58
+ * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.h
+ * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.h
+ * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.h
+ * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.h
+ * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.h
  * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.h
  * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.h
  * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.h
@@ -16,6 +20,7 @@
 #include "FrameWork/Base/baseHeader.h"
 #include "FrameWork/Core/ObjectBase.hpp"
 #include "FrameWork/Wrapper/Image.h"
+#include "FrameWork/Wrapper/RenderPass.h"
 #include "FrameWork/Wrapper/Swapchain.h"
 #include "functional"
 #include "vulkan/vulkan_core.h"
@@ -49,24 +54,29 @@ public:
   /**
    * @description: default convert swapchain images to final present images
    */
-  static const ConvertFunc DEFAULT_Convert_FUNC;
+  static const ConvertFunc DEFAULT_CONVERT_FUNC;
   /**
    * @description: create a image Ptr
    */
   using Create_Image_Func =
       std::function<Wrapper::Image::Ptr(Wrapper::SwapChain::Ptr)>;
 
+  using Create_ATTACHMENT_Reference = std::function<VkAttachmentReference(int)>;
+  Create_ATTACHMENT_Reference CREATE_ATTACHMENT_REFERENCE_FUNC;
+
   RenderTarget(Wrapper::Image::Ptr images_ptr,
                VkAttachmentDescription attachments_description);
-  RenderTarget(VkImage images, VkImageView images_view, VkExtent2D extent,
-               VkAttachmentDescription attachments_description);
-  ~RenderTarget();
- 
+  //   RenderTarget(VkImage images, VkImageView images_view, VkExtent2D extent,
+  //                VkAttachmentDescription attachments_description);
+//   ~RenderTarget();
+
   [[nodiscard]] auto Get_extent() { return extent; }
   [[nodiscard]] auto Get_image() { return image; }
   [[nodiscard]] auto Get_image_view() { return image_view; }
   [[nodiscard]] auto Get_attachments_description() {
     return attachment_description;
   }
+  virtual VkImageLayout Get_layout() = 0;
+  virtual Wrapper::SubPass::attachment_type Get_attachment_type() = 0;
 };
 } // namespace MoChengEngine::FrameWork::Core::Rendering

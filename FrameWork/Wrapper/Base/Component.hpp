@@ -9,6 +9,6 @@ protected:
 
 public:
   Component<T, K>(Device::Ptr device) : m_device{device} {}
-  [[nodiscard]] auto &Get_device() { return m_device; }
+  [[nodiscard]] auto  Get_device() { return m_device; }
 };
 } // namespace MoChengEngine::FrameWork::Wrapper

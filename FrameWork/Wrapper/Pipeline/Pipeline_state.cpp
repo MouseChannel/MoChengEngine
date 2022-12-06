@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-21 17:38:49
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-22 10:17:37
+ * @LastEditTime: 2022-11-24 13:37:47
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Pipeline\Pipeline_state.cpp
  * @Description: nullptr
  *
@@ -122,6 +122,6 @@ void PipelineState::fill_default() {
   Make_Raster_Info();
   Make_BlendAttachment_Info();
   Make_BlendState_Info();
-  Make_DepthStecil_Info();
+//   Make_DepthStecil_Info();
 }
 } // namespace MoChengEngine::FrameWork::Wrapper

@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-13 12:34:08
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-21 16:12:58
+ * @LastEditTime: 2022-11-30 12:51:59
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderContext.h
  * @Description: nullptr
  *
@@ -17,19 +17,19 @@
 #include "FrameWork/Wrapper/Device.h"
 #include "FrameWork/Wrapper/FrameBuffer.h"
 #include "FrameWork/Wrapper/Glfw_Window.h"
+#include "FrameWork/Wrapper/RenderPass.h"
 #include "FrameWork/Wrapper/Semaphore.h"
 #include "FrameWork/Wrapper/Swapchain.h"
 #include "FrameWork/Wrapper/WindowSurface.h"
-#include "vulkan/vulkan_core.h"
-#include <memory>
-#include <vector>
+
 #include "FrameWork/Core/ObjectBase.hpp"
 
 namespace MoChengEngine::FrameWork::Core::Rendering {
 
-class RenderContext :public ObjectBase<RenderContext>{
+class RenderContext {
 private:
   Wrapper::Instance::Ptr m_instance;
+  Wrapper::RenderPass::Ptr m_render_pass;
 
 private:
   Wrapper::Device::Ptr m_device;
@@ -55,6 +55,12 @@ public:
   ~RenderContext();
 
   void Prepare();
+    /**
+   * @description: create render pass and bind subpass
+   * only need config info ,and will not link real image_handle or image_view
+   */
+  void Prepare_RenderPass(
+      std::vector<std::unique_ptr<RenderTarget>> &render_targets);
   void Add_Prepare_command_buffers(
       std::vector<Wrapper::CommandBuffer::Ptr> command_buffers);
   Wrapper::CommandBuffer::Ptr Begin();
@@ -74,7 +80,7 @@ public:
   void Submit(Wrapper::CommandBuffer::Ptr commandBuffer);
 
   RenderTarget Create_render_target(VkAttachmentDescription attachment_des);
-
+  [[nodiscard]] auto &Get_Render_Pass() { return m_render_pass; }
   [[nodiscard]] auto &Get_command_queue() { return m_command_queue; }
   [[nodiscard]] auto &Get_swap_chain() { return m_swap_chain; }
   [[nodiscard]] auto &Get_active_frame() {

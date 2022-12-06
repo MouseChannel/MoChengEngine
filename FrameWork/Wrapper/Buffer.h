@@ -16,7 +16,6 @@
 namespace MoChengEngine::FrameWork::Wrapper {
 class Buffer : public Resource<VkBuffer, Buffer> {
 private:
- 
   bool persistent;
   uint8_t *mapped_data;
   VmaAllocationInfo allocation_info;
@@ -24,15 +23,15 @@ private:
 
 public:
   Buffer(Device::Ptr device, VkDeviceSize size, VkBufferUsageFlags buffer_usage,
-         VmaMemoryUsage memory_usage, 
-         VkMemoryPropertyFlags properties,VmaAllocationCreateFlags flags = 0,
+         VmaMemoryUsage memory_usage, VkMemoryPropertyFlags properties,
+         VmaAllocationCreateFlags flags = 0,
          const std::vector<uint32_t> &queue_family_indices =
              std::vector<uint32_t>());
   ~Buffer();
+  [[nodiscard]] auto Get_Allocation_info() { return allocation_info; }
   uint8_t *Map();
   void UnMap();
   void Update(void *data, size_t size, size_t offset = 0);
   void Flush();
- 
 };
 } // namespace MoChengEngine::FrameWork::Wrapper

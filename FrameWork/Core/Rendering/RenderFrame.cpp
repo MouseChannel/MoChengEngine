@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:46:25
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-21 11:54:11
+ * @LastEditTime: 2022-11-30 14:01:28
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderFrame.cpp
  * @Description: nullptr
  *
@@ -11,19 +11,37 @@
 #include "RenderFrame.h"
 #include "FrameWork/Core/ObjectPool.hpp"
 #include "FrameWork/Core/Rendering/RenderFrame.h"
+#include "FrameWork/Core/Rendering/Render_Target/Render_target_base.h"
 #include "FrameWork/Wrapper/Command/CommandBuffer.h"
 #include "FrameWork/Wrapper/Command/CommandPool.h"
+#include "FrameWork/Wrapper/FrameBuffer.h"
+#include "FrameWork/Wrapper/RenderPass.h"
 #include "FrameWork/Wrapper/Semaphore.h"
+#include "vulkan/vulkan_core.h"
 #include <algorithm>
 namespace MoChengEngine::FrameWork::Core::Rendering {
 RenderFrame::RenderFrame(
     Wrapper::Device::Ptr &device,
-    std::vector<std::unique_ptr<RenderTarget>>&& renderTarget)
-    : m_device{device}, m_swapchain_render_target{std::move(renderTarget)},
+    std::vector<std::unique_ptr<RenderTarget>> &&renderTargets)
+    : m_device{device}, m_swapchain_render_targets{std::move(renderTargets)},
       m_render_finish_semaphore{Wrapper::Semaphore::Create(m_device)},
       m_present_finish_semaphore{Wrapper::Semaphore::Create(m_device)} {}
 
 RenderFrame::~RenderFrame() {}
+void RenderFrame::Prepare(Wrapper::RenderPass::Ptr render_pass) {
+
+  Prepare_frame_buffers(render_pass);
+}
+void RenderFrame::Prepare_frame_buffers(Wrapper::RenderPass::Ptr render_pass) {
+  std::vector<VkImageView> swapchian_image_views;
+  std::transform(
+      m_swapchain_render_targets.begin(), m_swapchain_render_targets.end(),
+      swapchian_image_views.end(),
+      [](auto &render_target) { return render_target->Get_image_view(); });
+  m_frame_buffer = Wrapper::FrameBuffer::CreateR(
+      m_device, m_swapchain_render_targets[0]->Get_extent(),
+      swapchian_image_views, render_pass);
+}
 
 Wrapper::CommandPool::Ptr
 RenderFrame::Get_command_pool(Wrapper::CommandQueue::Ptr command_queue) {

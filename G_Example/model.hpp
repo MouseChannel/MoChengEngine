@@ -1,9 +1,9 @@
 #pragma once
-
+#include "FrameWork/Base/baseHeader.h"
 #include "FrameWork/Wrapper/Buffer.h"
 #include "FrameWork/Wrapper/Device.h"
 
-#include "FrameWork/Base/baseHeader.h"
+
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tools/tiny_obj_loader.h"
 
@@ -18,57 +18,21 @@ private:
   std::vector<float> mColors{};
   std::vector<unsigned int> mIndexDatas{};
   std::vector<float> mUVs{};
+  Wrapper::Device::Ptr m_device{nullptr};
   Wrapper::Buffer::Ptr mPositionBuffer{nullptr};
   Wrapper::Buffer::Ptr mColorBuffer{nullptr};
   Wrapper::Buffer::Ptr mUVBuffer{nullptr};
 
   Wrapper::Buffer::Ptr mIndexBuffer{nullptr};
-//   ObjectUniform m_Uniform;
+  //   ObjectUniform m_Uniform;
   float mAngle{0.0f};
 
 public:
   using Ptr = std::shared_ptr<Model>;
-  static Ptr Create(const Wrapper::Device::Ptr &device) {
+  static Ptr Create(const Wrapper::Device::Ptr device) {
     return std::make_shared<Model>(device);
   }
-  Model(const Wrapper::Device::Ptr &device) {
-    // m_Uniform.mModelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f),
-    //                                      glm::vec3(1.0f, 0.0f, 0.0f));
-
-    return;
-    // mPositions = {0.0f, -0.5f, 0.0f, 0.5f, 0.5f, 0.0f, -0.5f, 0.5f, 0.0f };
-
-    // mColors = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f };
-
-    // mIndexDatas = {0, 1, 2};
-
-    mPositions = {0.0f,  0.5f, 0.0f, 0.5f, 0.0f,  0.0f,
-                  -0.5f, 0.0f, 0.0f, 0.0f, -0.5f, 0.0f,
-
-                  0.3f,  0.5f, 0.2f, 1.8f, 0.0f,  0.2f,
-                  -0.8f, 0.0f, 0.2f, 0.3f, -0.5f, 0.2f};
-
-    mColors = {
-        1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-
-        1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f};
-
-    mUVs = {0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f};
-
-    mIndexDatas = {0, 2, 1, 1, 2, 3, 4, 6, 5, 5, 6, 7};
-
-    // mPositionBuffer = Wrapper::Buffer::CreateVertexBuffer(
-    //     device, mPositions.size() * sizeof(float), mPositions.data());
-
-    // mColorBuffer = Wrapper::Buffer::CreateVertexBuffer(
-    //     device, mColors.size() * sizeof(float), mColors.data());
-    // mUVBuffer = Wrapper::Buffer::CreateVertexBuffer(
-    //     device, mUVs.size() * sizeof(float), mUVs.data());
-
-    // mIndexBuffer = Wrapper::Buffer::CreateIndexBuffer(
-    //     device, mIndexDatas.size() * sizeof(float), mIndexDatas.data());
-  }
+  Model(const Wrapper::Device::Ptr device) : m_device{device} {}
   ~Model() = default;
   std::vector<VkVertexInputBindingDescription>
   getVertexInputBindingDescriptions() {
@@ -112,7 +76,7 @@ public:
   [[nodiscard]] auto getIndexBuffer() const { return mIndexBuffer; }
 
   [[nodiscard]] auto getIndexCount() const { return mIndexDatas.size(); }
-//   [[nodiscard]] auto getUniform() const { return m_Uniform; }
+  //   [[nodiscard]] auto getUniform() const { return m_Uniform; }
 
   void setModelMatrix(const glm::mat4 matrix) {
     // m_Uniform.mModelMatrix = matrix;
@@ -152,22 +116,22 @@ public:
     }
     std::cout << mPositions.size() << std::endl;
 
-    mPositionBuffer = Wrapper::Buffer::Create(
+    mPositionBuffer = Wrapper::Buffer::CreateR(
         device, mPositions.size() * sizeof(float),
         VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        VMA_MEMORY_USAGE_GPU_ONLY, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     mPositionBuffer->Update(mPositions.data(),
                             mPositions.size() * sizeof(float));
 
-    mUVBuffer = Wrapper::Buffer::Create(device, mUVs.size() * sizeof(float),
-                                        VK_BUFFER_USAGE_TRANSFER_DST_BIT |
-                                            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    mUVBuffer = Wrapper::Buffer::CreateR(
+        device, mUVs.size() * sizeof(float),
+        VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        VMA_MEMORY_USAGE_GPU_ONLY, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     mUVBuffer->Update(mUVs.data(), mUVs.size() * sizeof(float));
-    mIndexBuffer = Wrapper::Buffer::Create(
+    mIndexBuffer = Wrapper::Buffer::CreateR(
         device, mIndexDatas.size() * sizeof(float),
         VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        VMA_MEMORY_USAGE_GPU_ONLY, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     mIndexBuffer->Update(mIndexDatas.data(),
                          mIndexDatas.size() * sizeof(float));
   }

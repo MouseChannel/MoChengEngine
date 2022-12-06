@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-13 12:34:10
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-22 13:32:17
+ * @LastEditTime: 2022-12-01 09:07:10
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderContext.cpp
  * @Description: nullptr
  *
@@ -15,10 +15,14 @@
 #include "FrameWork/Core/Rendering/Render_Target/Muti_Sampler_RenderTarget.h"
 
 #include "FrameWork/Core/Rendering/Render_Target/Depth_RenderTarget.h"
+
+#include "FrameWork/Core/Rendering/Render_Target/Final_Render_Target.h"
+
 #include "FrameWork/Wrapper/Command/CommandBuffer.h"
 #include "FrameWork/Wrapper/Device.h"
 #include "FrameWork/Wrapper/Glfw_Window.h"
 #include "FrameWork/Wrapper/Image.h"
+#include "FrameWork/Wrapper/RenderPass.h"
 #include "FrameWork/Wrapper/Semaphore.h"
 #include "FrameWork/Wrapper/Swapchain.h"
 #include "FrameWork/Wrapper/WindowSurface.h"
@@ -43,20 +47,60 @@ void RenderContext::Prepare() {
     std::vector<std::unique_ptr<RenderTarget>> current_frame_render_targets;
     // first: origin swap_chain_image
     current_frame_render_targets.emplace_back(
-        RenderTarget::DEFAULT_Convert_FUNC(m_swap_chain->Get_images()[i]));
+        Final_RenderTarget::DEFAULT_FINAL_CREATE_FUNC(
+            m_swap_chain->Get_images()[i]));
 
     // second: Muti_Sampler_RenderTarget
     current_frame_render_targets.emplace_back(
-        Muti_Sampler_RenderTarget::DEFAULT_Convert_FUNC(
+        Muti_Sampler_RenderTarget::DEFAULT_MUTI_CREATE_FUNC(
             Muti_Sampler_RenderTarget::DEFAULT_IMAGE_CREATE_FUNC(
                 m_swap_chain)));
     // third: depth_RenderTarget
     current_frame_render_targets.emplace_back(
-        Depth_RenderTarget::DEFAULT_Convert_FUNC(
+        Depth_RenderTarget::DEFAULT_DEPTH_CREATE_FUNC(
             Depth_RenderTarget::DEFAULT_IMAGE_CREATE_FUNC(m_swap_chain)));
+
+    Prepare_RenderPass(current_frame_render_targets);
     render_frames.emplace_back(std::make_unique<RenderFrame>(
         m_device, std::move(current_frame_render_targets)));
+    render_frames.back()->Prepare(m_render_pass);
   }
+}
+
+void RenderContext::Prepare_RenderPass(
+    std::vector<std::unique_ptr<RenderTarget>> &render_targets) {
+  if (m_render_pass)
+    return;
+  m_render_pass = Wrapper::RenderPass::Create(m_device);
+  // 做一个subpass
+  Wrapper::SubPass subPass{};
+  std::vector<VkAttachmentDescription> descriptions;
+  for (int index = 0; index < render_targets.size(); index++) {
+    auto &render_target = render_targets[index];
+    descriptions.emplace_back(render_target->Get_attachments_description());
+    // add subpass attachment reference
+    auto attachment_reference =
+        render_target->CREATE_ATTACHMENT_REFERENCE_FUNC(index);
+    auto attachment_type = render_target->Get_attachment_type();
+    subPass.Add_attachment_reference(attachment_reference, attachment_type);
+  }
+  m_render_pass->Set_attachment_description(descriptions);
+  // colorAttachment = 多重采样图片
+  //  ResolveAttachment，对colorAttachment的每个像素内的采样点做平均值
+  subPass.Build_SubPass_Description();
+  VkSubpassDependency dependency{};
+  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+  dependency.dstSubpass = 0;
+  // 上一个pass在哪一个stage的哪一个操作完成
+  dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependency.srcAccessMask = 0;
+  // P一个pass在哪一个stage的哪一个操作阻塞
+  dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+                             VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+  m_render_pass->AddSubPass(subPass, dependency);
+  m_render_pass->BuildRenderPass();
 }
 
 Wrapper::CommandBuffer::Ptr RenderContext::Begin() {
@@ -92,7 +136,7 @@ void RenderContext::Submit(Wrapper::CommandBuffer::Ptr commandBuffer) {
   // 提交哪些命令
 
   submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = & commandBuffer->Get_handle();
+  submitInfo.pCommandBuffers = &commandBuffer->Get_handle();
 
   submitInfo.signalSemaphoreCount = 1;
   submitInfo.pSignalSemaphores =

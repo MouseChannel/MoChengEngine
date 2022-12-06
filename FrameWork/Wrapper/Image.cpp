@@ -1,21 +1,23 @@
+ 
 #include "Image.h"
-#include "vulkan/vulkan_core.h"
+#include "FrameWork/Wrapper/Buffer.h"
 
 #include <assert.h>
 #include <stdint.h>
+//  #include "FrameWork/Base/vmaExporter.cpp"
 namespace MoChengEngine::FrameWork::Wrapper {
-Image::Image(const Device::Ptr device, const VkExtent3D extent,
+Image::Image(const Device::Ptr device, uint32_t width, uint32_t height,
              const VkFormat format, const VkImageType imageType,
              const VkImageTiling tiling, const VkImageUsageFlags image_usage,
              const VkSampleCountFlagBits sample,
              const VkMemoryPropertyFlags properties,
              const VkImageAspectFlags aspectFlags,
              const VmaMemoryUsage memory_usage)
-    : Resource<VkImage, Image>{device}, m_extent{extent}, m_imageType{
-                                                              imageType} {
+    : Resource<VkImage, Image>{device}, width{width}, height{height},
+      m_imageType{imageType} {
   VkImageCreateInfo imageCreateInfo;
   imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-  imageCreateInfo.extent = extent;
+  imageCreateInfo.extent = VkExtent3D{width, height, 1};
 
   imageCreateInfo.format = format; // rgb rgba
   imageCreateInfo.imageType = imageType;
@@ -35,13 +37,22 @@ Image::Image(const Device::Ptr device, const VkExtent3D extent,
   if (image_usage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) {
     memory_info.preferredFlags = VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
   }
-  VK_CHECK_SUCCESS(vmaCreateImage(m_device->Get_allocator(), &imageCreateInfo,
-                                  &memory_info, &m_handle, &allocation,
-                                  nullptr),
-                   "Create image failed");
+//   auto allocator = m_device->Get_allocator();
+//   VkResult res = (*allocator->GetVulkanFunctions().vkCreateImage)(
+//       allocator->m_hDevice, &imageCreateInfo,
+//       allocator->GetAllocationCallbacks(), &m_handle);
+auto s =  vkCreateImage(m_device->Get_handle(),&imageCreateInfo,nullptr,&m_handle);
+auto dev = device->Get_handle();
+  vmaCreateImage(m_device->Get_allocator(), &imageCreateInfo, &memory_info,
+                 &m_handle, &allocation, nullptr);
+  //   VK_CHECK_SUCCESS(vmaCreateImage(m_device->Get_allocator(),
+  //   &imageCreateInfo,
+  //                                   &memory_info, &m_handle, &allocation,
+  //                                   nullptr),
+  //    "Create image failed");
   m_view = CreateView(Make_View_Info(aspectFlags), m_device);
 }
-Image::Image(const Device::Ptr &device, VkImage image_handle,
+Image::Image(const Device::Ptr device, VkImage image_handle,
              const VkExtent3D extent, VkFormat format, bool auto_destroy)
     : Resource<VkImage, Image>{device}, m_extent{extent}, m_format(format),
       auto_destroy(auto_destroy) {
@@ -96,24 +107,23 @@ void Image::FillImageData(size_t size, void *pData,
                           CommandBuffer::Ptr commandBuffer) {
   assert(pData);
   assert(size);
-  VkBufferImageCopy a;
-  //   auto stageBuffer = Buffer::CreateStageBuffer(m_Device, size, pData);
 
-  //   auto commandBuffer = CommandBuffer::Create(m_Device, commandPool);
-  //   commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-  //   commandBuffer->CopyBufferToImage(stageBuffer->getBuffer(), m_handle,
-  //   m_layout,
-  //                                    m_Width, m_Height);
-  //   commandBuffer->End();
+  auto buffer =
+      Buffer::CreateR(m_device, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                      VMA_MEMORY_USAGE_CPU_TO_GPU,
+                      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                          VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+  buffer->Update(pData, size);
 
-  //   commandBuffer->SubmitSync(m_Device->GetGraphicQueue());
+  commandBuffer->CopyBufferToImage(buffer->Get_handle(), m_handle, m_layout,
+                                   m_extent.width, m_extent.height);
 }
 // 使用barrier修改image格式
 void Image::SetImageLayout(VkImageLayout newLayout,
                            VkPipelineStageFlags srcStageMask,
                            VkPipelineStageFlags dstStageMask,
                            VkImageSubresourceRange subresrouceRange,
-                           CommandBuffer::Ptr &commandBuffer) {
+                           CommandBuffer::Ptr commandBuffer) {
   auto &oldLayout = m_layout;
   VkImageMemoryBarrier imageMemoryBarrier{};
   imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -156,10 +166,9 @@ void Image::SetImageLayout(VkImageLayout newLayout,
   default:
     break;
   }
-  commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
   commandBuffer->TransferImageLayout(imageMemoryBarrier, srcStageMask,
                                      dstStageMask);
-  commandBuffer->End();
 }
 VkImageView Image::CreateView(VkImageViewCreateInfo viewInfo,
                               Device::Ptr device) {

@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:46:21
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-22 14:03:12
+ * @LastEditTime: 2022-11-30 10:56:30
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderFrame.h
  * @Description: nullptr
  *
@@ -19,16 +19,17 @@
 #include "FrameWork/Wrapper/Command/CommandQueue.h"
 #include "FrameWork/Wrapper/Device.h"
 #include "FrameWork/Wrapper/FrameBuffer.h"
- 
+
+#include "FrameWork/Wrapper/RenderPass.h"
 #include "FrameWork/Wrapper/Semaphore.h"
-#include "vulkan/vulkan_core.h"
+#include <vector>
 
 namespace MoChengEngine::FrameWork::Core::Rendering {
 
-class RenderFrame   {
+class RenderFrame {
 private:
   Wrapper::Device::Ptr m_device{nullptr};
-  std::vector<std::unique_ptr<RenderTarget>> m_swapchain_render_target;
+  std::vector<std::unique_ptr<RenderTarget>> m_swapchain_render_targets;
 
   std::vector<Wrapper::CommandPool::Ptr> m_command_pool;
 
@@ -36,13 +37,17 @@ private:
   Wrapper::Semaphore::Ptr m_present_finish_semaphore;
 
   ObjectPool<Wrapper::CommandBuffer::Ptr> command_buffers;
+ Wrapper::FrameBuffer::Ptr m_frame_buffer ;
 
 public:
   RenderFrame(Wrapper::Device::Ptr &device,
-              std::vector<std::unique_ptr<RenderTarget>>&& renderTarget);
+              std::vector<std::unique_ptr<RenderTarget>> &&renderTarget);
   ~RenderFrame();
+  void Prepare(Wrapper::RenderPass::Ptr render_pass);
+  void Prepare_frame_buffers(Wrapper::RenderPass::Ptr render_pass);
   Wrapper::CommandBuffer::Ptr
   request_command_buffer(Wrapper::CommandQueue::Ptr command_queue);
+  [[nodiscard]] auto &Get_Render_Target() { return m_swapchain_render_targets; }
   [[nodiscard]] Wrapper::CommandPool::Ptr
   Get_command_pool(Wrapper::CommandQueue::Ptr command_queue);
   [[nodiscard]] auto Get_render_finish_semaphore() {

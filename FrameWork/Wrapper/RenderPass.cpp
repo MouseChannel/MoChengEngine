@@ -18,6 +18,7 @@ RenderPass::~RenderPass() {
 
   vkDestroyRenderPass(m_device->Get_handle(), m_handle, nullptr);
 }
+
 void RenderPass::BuildRenderPass() {
 
   if (mSubPasses.empty() || mAttachmentDescriptions.empty() ||

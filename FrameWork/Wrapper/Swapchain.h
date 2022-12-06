@@ -55,10 +55,10 @@ public:
                               VkSemaphore present_finish_semaphore,
                               VkFence fence);
 
-  [[nodiscard]] auto &Get_images() { return m_swapchain_images; }
-  [[nodiscard]] auto &Get_images_view() { return m_SwapChainImageViews; }
-  [[nodiscard]] auto &Get_format() { return m_SwapChainFormat; }
-  [[nodiscard]] auto &Get_extent2D() { return m_SwapChainExtent; }
+  [[nodiscard]] auto   Get_images() { return m_swapchain_images; }
+  [[nodiscard]] auto  Get_images_view() { return m_SwapChainImageViews; }
+  [[nodiscard]] auto  Get_format() { return m_SwapChainFormat; }
+  [[nodiscard]] auto  Get_extent2D() { return m_SwapChainExtent; }
   [[nodiscard]] auto Get_image_count() { return imageCount; }
 };
 

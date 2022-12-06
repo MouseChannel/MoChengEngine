@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-14 21:56:24
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-19 20:20:24
+ * @LastEditTime: 2022-11-30 11:27:58
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\RenderPass.h
  * @Description: nullptr
  *
@@ -46,8 +46,11 @@ private:
   VkSubpassDescription m_SubPassDescription{};
   // AttachmentReference代表的是在RenderPassAttachments数组里面的下标
   // 该pass的输出
+  VkAttachmentReference m_ColorAttachmentReference;
   std::vector<VkAttachmentReference> m_ColorAttachmentReferences{};
+
   // 上pass的输出，即该pass的输入
+  VkAttachmentReference m_InputAttachmentReference;
   std::vector<VkAttachmentReference> m_InputAttachmentReferences{};
   VkAttachmentReference m_DepthStencilAttachmentReference{};
   VkAttachmentReference m_ResolvedAttachmentReference{};
@@ -68,20 +71,20 @@ public:
                                 attachment_type type) {
     switch (type) {
     case Wrapper::SubPass::ColorAttachment:
-      m_ColorAttachmentReferences.push_back(ref);
+      m_ColorAttachmentReference = ref;
+      //   m_ColorAttachmentReferences.push_back(ref);
       break;
     case Wrapper::SubPass::DepthStencilAttachment:
       m_DepthStencilAttachmentReference = ref;
       break;
     case Wrapper::SubPass::InputAttachment:
-      m_InputAttachmentReferences.push_back(ref);
+      m_InputAttachmentReference = ref;
+      //   m_InputAttachmentReferences.push_back(ref);
       break;
     case Wrapper::SubPass::ResolveAttachment:
       m_ResolvedAttachmentReference = ref;
       break;
     }
-
- 
   }
   void Set_dependence(VkSubpassDependency dependence) {
     m_dependence = dependence;
@@ -92,13 +95,15 @@ public:
     }
     m_SubPassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
-    m_SubPassDescription.colorAttachmentCount =
-        static_cast<uint32_t>(m_ColorAttachmentReferences.size());
-    m_SubPassDescription.pColorAttachments = m_ColorAttachmentReferences.data();
+    m_SubPassDescription.colorAttachmentCount = 1;
+    // static_cast<uint32_t>(m_ColorAttachmentReferences.size());
+    m_SubPassDescription.pColorAttachments = &m_ColorAttachmentReference;
+    // m_ColorAttachmentReferences.data();
 
-    m_SubPassDescription.inputAttachmentCount =
-        static_cast<uint32_t>(m_InputAttachmentReferences.size());
-    m_SubPassDescription.pInputAttachments = m_InputAttachmentReferences.data();
+    m_SubPassDescription.inputAttachmentCount = 1;
+    // static_cast<uint32_t>(m_InputAttachmentReferences.size());
+    m_SubPassDescription.pInputAttachments = &m_InputAttachmentReference;
+    // m_InputAttachmentReferences.data();
     m_SubPassDescription.pResolveAttachments = &m_ResolvedAttachmentReference;
 
     m_SubPassDescription.pDepthStencilAttachment =
