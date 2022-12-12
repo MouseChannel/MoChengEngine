@@ -1,6 +1,7 @@
- 
+
 #include "Image.h"
 #include "FrameWork/Wrapper/Buffer.h"
+#include "vulkan/vulkan_core.h"
 
 #include <assert.h>
 #include <stdint.h>
@@ -13,9 +14,9 @@ Image::Image(const Device::Ptr device, uint32_t width, uint32_t height,
              const VkMemoryPropertyFlags properties,
              const VkImageAspectFlags aspectFlags,
              const VmaMemoryUsage memory_usage)
-    : Resource<VkImage, Image>{device}, width{width}, height{height},
-      m_imageType{imageType} {
-  VkImageCreateInfo imageCreateInfo;
+    : Resource<VkImage, Image>{device}, m_width{width}, m_height{height},
+      m_format{format}, m_imageType{imageType} {
+  VkImageCreateInfo imageCreateInfo{};
   imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
   imageCreateInfo.extent = VkExtent3D{width, height, 1};
 
@@ -37,25 +38,42 @@ Image::Image(const Device::Ptr device, uint32_t width, uint32_t height,
   if (image_usage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) {
     memory_info.preferredFlags = VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
   }
-//   auto allocator = m_device->Get_allocator();
-//   VkResult res = (*allocator->GetVulkanFunctions().vkCreateImage)(
-//       allocator->m_hDevice, &imageCreateInfo,
-//       allocator->GetAllocationCallbacks(), &m_handle);
-auto s =  vkCreateImage(m_device->Get_handle(),&imageCreateInfo,nullptr,&m_handle);
-auto dev = device->Get_handle();
-  vmaCreateImage(m_device->Get_allocator(), &imageCreateInfo, &memory_info,
-                 &m_handle, &allocation, nullptr);
-  //   VK_CHECK_SUCCESS(vmaCreateImage(m_device->Get_allocator(),
-  //   &imageCreateInfo,
-  //                                   &memory_info, &m_handle, &allocation,
-  //                                   nullptr),
-  //    "Create image failed");
+  /*
+
+  VK_CHECK_SUCCESS(vmaCreateImage(m_device->Get_allocator(),
+                                  &imageCreateInfo,
+                                  &memory_info, &m_handle, &allocation,
+                                  nullptr),
+                   "Create image failed");
+  */
+  VK_CHECK_SUCCESS(vkCreateImage(m_device->Get_handle(), &imageCreateInfo,
+                                 nullptr, &m_handle),
+                   "create image failed");
+
+  VkMemoryRequirements memReq{};
+  vkGetImageMemoryRequirements(m_device->Get_handle(), m_handle, &memReq);
+
+  VkMemoryAllocateInfo allocInfo{};
+  allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+  allocInfo.allocationSize = memReq.size;
+
+  allocInfo.memoryTypeIndex =
+      m_device->Get_gpu()->FindMemoryType(memReq.memoryTypeBits, properties);
+
+  if (vkAllocateMemory(m_device->Get_handle(), &allocInfo, nullptr,
+                       &m_ImageMemory) != VK_SUCCESS) {
+    throw std::runtime_error("Error: failed to allocate memory");
+  }
+
+  vkBindImageMemory(m_device->Get_handle(), m_handle, m_ImageMemory, 0);
+
   m_view = CreateView(Make_View_Info(aspectFlags), m_device);
 }
 Image::Image(const Device::Ptr device, VkImage image_handle,
              const VkExtent3D extent, VkFormat format, bool auto_destroy)
-    : Resource<VkImage, Image>{device}, m_extent{extent}, m_format(format),
-      auto_destroy(auto_destroy) {
+    : Resource<VkImage, Image>{device}, m_extent{extent},
+      m_format(format), m_width{extent.width}, m_height{extent.height},
+      m_imageType{VK_IMAGE_TYPE_2D}, auto_destroy(auto_destroy) {
   m_handle = image_handle;
   m_view = CreateView(Make_View_Info(VK_IMAGE_ASPECT_COLOR_BIT), m_device);
 }
@@ -103,20 +121,15 @@ Image::Make_View_Info(const VkImageAspectFlags aspectFlags) {
 }
 
 // 填充该image内容
-void Image::FillImageData(size_t size, void *pData,
+void Image::FillImageData(size_t size, void *pData, Buffer::Ptr &buffer,
                           CommandBuffer::Ptr commandBuffer) {
   assert(pData);
   assert(size);
 
-  auto buffer =
-      Buffer::CreateR(m_device, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                      VMA_MEMORY_USAGE_CPU_TO_GPU,
-                      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                          VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+  
   buffer->Update(pData, size);
-
   commandBuffer->CopyBufferToImage(buffer->Get_handle(), m_handle, m_layout,
-                                   m_extent.width, m_extent.height);
+                                   m_width, m_height);
 }
 // 使用barrier修改image格式
 void Image::SetImageLayout(VkImageLayout newLayout,
@@ -169,6 +182,7 @@ void Image::SetImageLayout(VkImageLayout newLayout,
 
   commandBuffer->TransferImageLayout(imageMemoryBarrier, srcStageMask,
                                      dstStageMask);
+  m_layout = newLayout;
 }
 VkImageView Image::CreateView(VkImageViewCreateInfo viewInfo,
                               Device::Ptr device) {

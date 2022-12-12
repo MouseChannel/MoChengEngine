@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-22 10:32:45
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-22 10:52:55
+ * @LastEditTime: 2022-12-12 12:21:28
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\Graphic_pipeline.cpp
  * @Description: nullptr
  *
@@ -13,11 +13,12 @@
 namespace MoChengEngine::FrameWork::Core::Rendering {
 GraphicPipeline::GraphicPipeline(
     Wrapper::Device::Ptr device,
-    std::vector<VkVertexInputBindingDescription> vertexbindindDes,
-    std::vector<VkVertexInputAttributeDescription> attributeDes,
-    Wrapper::RenderPass::Ptr renderpass,
-    VkDescriptorSetLayout descriptorSet_layout, VkSampleCountFlagBits samples)
+    std::vector<VkVertexInputBindingDescription>  vertexbindindDes,
+    std::vector<VkVertexInputAttributeDescription>  attributeDes,
+    Wrapper::RenderPass::Ptr &renderpass,
+    VkDescriptorSetLayout &descriptorSet_layout, VkSampleCountFlagBits samples)
     : Wrapper::Pipeline{device} {
+  pipeline_state->fill_default();
   pipeline_state->Set_renderpass(renderpass);
   pipeline_state->Make_LayoutCreate_Info(descriptorSet_layout);
   pipeline_state->Make_MultiSample_Info(samples);
@@ -26,7 +27,6 @@ GraphicPipeline::GraphicPipeline(
 GraphicPipeline::~GraphicPipeline() {}
 
 void GraphicPipeline::Build_pipeline(
-
     std::vector<VkPipelineShaderStageCreateInfo> &shaders_stage) {
 
   VK_CHECK_SUCCESS(vkCreatePipelineLayout(m_device->Get_handle(),
@@ -38,7 +38,7 @@ void GraphicPipeline::Build_pipeline(
 
   pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaders_stage.size());
   pipelineCreateInfo.pStages = shaders_stage.data();
-
+  auto asdas = pipeline_state->Get_VertexInput();
   pipelineCreateInfo.pVertexInputState = &pipeline_state->Get_VertexInput();
   pipelineCreateInfo.pInputAssemblyState = &pipeline_state->Get_InputAssembly();
   pipelineCreateInfo.pViewportState = &pipeline_state->Get_Viewport();

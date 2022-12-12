@@ -32,3 +32,6 @@ const std::vector<const char *> validationLayers = {
 const static int Width = 800;
 
 const static int Height = 800;
+
+
+// #define Using_VMA

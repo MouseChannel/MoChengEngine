@@ -6,19 +6,14 @@ include_directories(${PROJECT_SOURCE_DIR}/lib/Include ${PROJECT_SOURCE_DIR}/lib 
 
 add_definitions(-w)
 add_subdirectory(FrameWork)
+add_subdirectory(G_Example)
+
 # add_subdirectory(tools)
-
 FIND_LIBRARY(GLFW libglfw3 ${PROJECT_SOURCE_DIR}/lib/glfw3)
-
-
-
 
 FIND_LIBRARY(VULKAN vulkan ${PROJECT_SOURCE_DIR}/lib)
 add_executable(MoChengEngine main.cpp)
-target_link_libraries(MoChengEngine framework_lib   ${VULKAN} ${GLFW})
-
-
-
+target_link_libraries(MoChengEngine framework_lib example_lib ${VULKAN} ${GLFW})
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

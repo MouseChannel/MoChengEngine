@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-14 10:01:38
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-19 14:19:33
+ * @LastEditTime: 2022-12-09 12:01:42
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Base\Resource.hpp
  * @Description: nullptr
  *
@@ -20,6 +20,6 @@ public:
   ~Resource<T, K>() = default;
 
 protected:
-  VmaAllocation allocation{VK_NULL_HANDLE};
+  VmaAllocation allocation ;
 };
 } // namespace MoChengEngine::FrameWork::Wrapper

@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-11 18:13:45
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-01 13:31:24
+ * @LastEditTime: 2022-12-09 11:43:52
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Instance\Debugger.cpp
  * @Description: nullptr
  *
@@ -19,7 +19,7 @@ Debugger::Debugger(Instance &instance) : m_instance{instance} {
 
   createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
   createInfo.messageSeverity =
-        VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+        // VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
       VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
       VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 

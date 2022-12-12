@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-13 12:34:10
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-01 09:07:10
+ * @LastEditTime: 2022-12-12 15:43:04
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderContext.cpp
  * @Description: nullptr
  *
@@ -79,8 +79,7 @@ void RenderContext::Prepare_RenderPass(
     auto &render_target = render_targets[index];
     descriptions.emplace_back(render_target->Get_attachments_description());
     // add subpass attachment reference
-    auto attachment_reference =
-        render_target->CREATE_ATTACHMENT_REFERENCE_FUNC(index);
+    auto attachment_reference = render_target->Get_Attachement_Reference(index);
     auto attachment_type = render_target->Get_attachment_type();
     subPass.Add_attachment_reference(attachment_reference, attachment_type);
   }
@@ -115,11 +114,12 @@ void RenderContext::Begin_frame() {
       prev_frame->Get_present_finish_semaphore();
   current_frame_render_finish_semaphore =
       prev_frame->Get_render_finish_semaphore();
-  m_swap_chain->Acquire_next_image(
+  auto res = m_swap_chain->Acquire_next_image(
       active_frame_index, current_frame_present_finish_semaphore->Get_handle(),
       nullptr);
 }
-void RenderContext::Submit(Wrapper::CommandBuffer::Ptr commandBuffer) {
+void RenderContext::Submit(
+    std::vector<Wrapper::CommandBuffer::Ptr> commandBuffers, VkFence fence) {
 
   VkSubmitInfo submitInfo{};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -130,21 +130,28 @@ void RenderContext::Submit(Wrapper::CommandBuffer::Ptr commandBuffer) {
 
   submitInfo.waitSemaphoreCount = 1;
   submitInfo.pWaitSemaphores =
-      &current_frame_render_finish_semaphore->Get_handle();
+      &current_frame_present_finish_semaphore->Get_handle();
   submitInfo.pWaitDstStageMask = waitStages;
 
   // 提交哪些命令
 
-  submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = &commandBuffer->Get_handle();
+  submitInfo.commandBufferCount = commandBuffers.size();
+  std::vector<VkCommandBuffer> vkcommand_buffers;
+  for (const auto &i : commandBuffers) {
+    vkcommand_buffers.emplace_back(i->Get_handle());
+  }
+ 
+  submitInfo.pCommandBuffers = vkcommand_buffers.data();
 
   submitInfo.signalSemaphoreCount = 1;
   submitInfo.pSignalSemaphores =
-      &current_frame_present_finish_semaphore->Get_handle();
+      &current_frame_render_finish_semaphore->Get_handle();
 
-  m_command_queue->Submit({submitInfo}, VK_NULL_HANDLE);
+  m_command_queue->Submit({submitInfo}, fence);
+
+  End_frame(current_frame_render_finish_semaphore->Get_handle());
 }
-void RenderContext::End_frame(VkSemaphore submit_finish_semaphone) {
+void RenderContext::End_frame(VkSemaphore &submit_finish_semaphone) {
   VkPresentInfoKHR present_info;
   present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 

@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-11 13:46:02
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-01 21:54:16
+ * @LastEditTime: 2022-12-10 14:00:59
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Base\WrapperBase.hpp
  * @Description: nullptr
  *
@@ -11,7 +11,8 @@
 
 #pragma once
 #include <memory>
-namespace MoChengEngine::FrameWork::Wrapper {
+namespace MoChengEngine::FrameWork{
+     
 template <typename T, typename K> class WrapperBase {
 public:
   using Ptr = std::shared_ptr<K>;

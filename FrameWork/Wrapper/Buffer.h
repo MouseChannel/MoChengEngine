@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-14 11:30:26
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-22 14:35:50
+ * @LastEditTime: 2022-12-11 10:18:25
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Buffer.h
  * @Description: nullptr
  *
@@ -17,9 +17,12 @@ namespace MoChengEngine::FrameWork::Wrapper {
 class Buffer : public Resource<VkBuffer, Buffer> {
 private:
   bool persistent;
-  uint8_t *mapped_data;
-  VmaAllocationInfo allocation_info;
+
+  VmaAllocationInfo allocation_info{};
   bool mapped = false;
+  VkDeviceMemory mBufferMemory{VK_NULL_HANDLE};
+  VkDescriptorBufferInfo m_BufferInfo{};
+  void *mapped_data{nullptr};
 
 public:
   Buffer(Device::Ptr device, VkDeviceSize size, VkBufferUsageFlags buffer_usage,
@@ -29,9 +32,14 @@ public:
              std::vector<uint32_t>());
   ~Buffer();
   [[nodiscard]] auto Get_Allocation_info() { return allocation_info; }
-  uint8_t *Map();
+  [[nodiscard]] auto Get_Buffer_info() { return m_BufferInfo; }
+  void Map(size_t size, size_t offset = 0);
   void UnMap();
   void Update(void *data, size_t size, size_t offset = 0);
   void Flush();
+  uint32_t FindMemoryType(uint32_t typeFilter,
+                          VkMemoryPropertyFlags properties);
+
+  static Ptr Create_Image_buffer(Device::Ptr device, size_t size);
 };
 } // namespace MoChengEngine::FrameWork::Wrapper

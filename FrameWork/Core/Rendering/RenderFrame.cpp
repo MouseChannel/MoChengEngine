@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:46:25
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-30 14:01:28
+ * @LastEditTime: 2022-12-10 14:51:07
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderFrame.cpp
  * @Description: nullptr
  *
@@ -34,10 +34,16 @@ void RenderFrame::Prepare(Wrapper::RenderPass::Ptr render_pass) {
 }
 void RenderFrame::Prepare_frame_buffers(Wrapper::RenderPass::Ptr render_pass) {
   std::vector<VkImageView> swapchian_image_views;
-  std::transform(
-      m_swapchain_render_targets.begin(), m_swapchain_render_targets.end(),
-      swapchian_image_views.end(),
-      [](auto &render_target) { return render_target->Get_image_view(); });
+  for (auto &i : m_swapchain_render_targets) {
+    swapchian_image_views.emplace_back(i->Get_image_view());
+  }
+  // std::transform(
+  //     m_swapchain_render_targets.begin(), m_swapchain_render_targets.end(),
+  //     swapchian_image_views.end(),
+  //     [](auto  &render_target)
+  //     { auto image_view = render_target->Get_image_view();
+
+  //     return image_view; });
   m_frame_buffer = Wrapper::FrameBuffer::CreateR(
       m_device, m_swapchain_render_targets[0]->Get_extent(),
       swapchian_image_views, render_pass);
@@ -62,9 +68,10 @@ RenderFrame::Get_command_pool(Wrapper::CommandQueue::Ptr command_queue) {
 Wrapper::CommandBuffer::Ptr
 RenderFrame::request_command_buffer(Wrapper::CommandQueue::Ptr command_queue) {
   auto command_pool = Get_command_pool(command_queue);
-  command_buffers.request_object([this, command_pool]() {
+  return command_buffers.request_object([this, &command_pool]() {
     return Wrapper::CommandBuffer::Create(m_device, command_pool);
   });
+  //   default_command_buffer_create_func(m_device, command_pool));
 }
 
 } // namespace MoChengEngine::FrameWork::Core::Rendering

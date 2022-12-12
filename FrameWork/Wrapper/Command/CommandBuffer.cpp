@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 14:36:55
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-20 20:03:52
+ * @LastEditTime: 2022-12-12 13:21:50
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Command\CommandBuffer.cpp
  * @Description: nullptr
  *
@@ -10,7 +10,9 @@
  */
 #include "CommandBuffer.h"
 #include "FrameWork/Wrapper/Command/CommandBuffer.h"
+#include "FrameWork/Wrapper/Command/CommandQueue.h"
 #include "vulkan/vulkan_core.h"
+
 namespace MoChengEngine::FrameWork::Wrapper {
 
 CommandBuffer::CommandBuffer(Device::Ptr device, CommandPool::Ptr commandPool,
@@ -30,8 +32,34 @@ CommandBuffer::CommandBuffer(Device::Ptr device, CommandPool::Ptr commandPool,
       "falied to create commandBuffer");
 }
 CommandBuffer::~CommandBuffer() {
+  std::cout << "Free command buffer"<<m_handle << std::endl;
   vkFreeCommandBuffers(m_device->Get_handle(), m_commandPool->Get_handle(), 1,
                        &m_handle);
+}
+
+void CommandBuffer::Add_Task(std::function<void()> task,
+                             VkCommandBufferUsageFlags flag) {
+
+  Begin(flag);
+
+  task();
+}
+void CommandBuffer::Wait(CommandQueue::Ptr command_queue) {
+  End();
+  VkSubmitInfo submitInfo{};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &m_handle;
+  vkQueueSubmit(command_queue->Get_handle(), 1, &submitInfo, VK_NULL_HANDLE);
+  vkQueueWaitIdle(command_queue->Get_handle());
+}
+
+void CommandBuffer::Wait_All(CommandQueue::Ptr command_queue,
+                             std::vector<CommandBuffer::Ptr> command_buffers) {
+  for (const auto &i : command_buffers) {
+    i->Wait(command_queue);
+  }
 }
 void CommandBuffer::Begin(VkCommandBufferUsageFlags flag,
                           const VkCommandBufferInheritanceInfo &inheritance) {
@@ -60,6 +88,11 @@ void CommandBuffer::BindVertexBuffer(const std::vector<VkBuffer> &buffers) {
   vkCmdBindVertexBuffers(m_handle, 0, static_cast<uint32_t>(buffers.size()),
                          buffers.data(), offsets.data());
 }
+void CommandBuffer::BindDescriptorSet(const VkPipelineLayout layout,
+                         const VkDescriptorSet &descriptorSet) {
+    vkCmdBindDescriptorSets(m_handle, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            layout, 0, 1, &descriptorSet, 0, nullptr);
+  }
 void CommandBuffer::BindIndexBuffer(const VkBuffer &buffer) {
   vkCmdBindIndexBuffer(m_handle, buffer, 0, VK_INDEX_TYPE_UINT32);
 }

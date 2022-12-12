@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-13 12:34:08
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-30 12:51:59
+ * @LastEditTime: 2022-12-12 15:43:16
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderContext.h
  * @Description: nullptr
  *
@@ -15,6 +15,7 @@
 #include "FrameWork/Wrapper/Command/CommandBuffer.h"
 #include "FrameWork/Wrapper/Command/CommandQueue.h"
 #include "FrameWork/Wrapper/Device.h"
+#include "FrameWork/Wrapper/Fence.h"
 #include "FrameWork/Wrapper/FrameBuffer.h"
 #include "FrameWork/Wrapper/Glfw_Window.h"
 #include "FrameWork/Wrapper/RenderPass.h"
@@ -23,6 +24,7 @@
 #include "FrameWork/Wrapper/WindowSurface.h"
 
 #include "FrameWork/Core/ObjectBase.hpp"
+#include "vulkan/vulkan_core.h"
 
 namespace MoChengEngine::FrameWork::Core::Rendering {
 
@@ -55,7 +57,7 @@ public:
   ~RenderContext();
 
   void Prepare();
-    /**
+  /**
    * @description: create render pass and bind subpass
    * only need config info ,and will not link real image_handle or image_view
    */
@@ -71,13 +73,14 @@ public:
   /**
    * @description: present current image(framebuffer)
    */
-  void End_frame(VkSemaphore submit_finish_semaphone);
+  void End_frame(VkSemaphore &submit_finish_semaphone);
   /**
    * @description: using in render,submit every frame command_buffer
    * @param {Ptr} commandBuffer = a command_buffer which has been recorded
    * already
    */
-  void Submit(Wrapper::CommandBuffer::Ptr commandBuffer);
+  void Submit(std::vector<Wrapper::CommandBuffer::Ptr> commandBuffers,
+              VkFence fence = VK_NULL_HANDLE);
 
   RenderTarget Create_render_target(VkAttachmentDescription attachment_des);
   [[nodiscard]] auto &Get_Render_Pass() { return m_render_pass; }
@@ -86,6 +89,7 @@ public:
   [[nodiscard]] auto &Get_active_frame() {
     return render_frames[active_frame_index];
   }
+  [[nodiscard]] auto Get_active_frame_index() { return active_frame_index; }
   [[nodiscard]] auto request_command_buffer() {
     return Get_active_frame()->request_command_buffer(m_command_queue);
   }

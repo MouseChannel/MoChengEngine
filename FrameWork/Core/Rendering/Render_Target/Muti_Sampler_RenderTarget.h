@@ -16,53 +16,66 @@
 #include "Render_target_base.h"
 #include "vulkan/vulkan_core.h"
 
-namespace MoChengEngine::FrameWork::Core::Rendering {
+namespace MoChengEngine::FrameWork::Core::Rendering
+{
 
-class Muti_Sampler_RenderTarget : public RenderTarget {
+    class Muti_Sampler_RenderTarget : public RenderTarget
+    {
 
-public:
-  Muti_Sampler_RenderTarget(Wrapper::Image::Ptr images_ptr,
-                            VkAttachmentDescription attachments_description)
-      : RenderTarget{images_ptr, attachments_description} {}
-  //   ~Muti_Sampler_RenderTarget(){}
-  inline static const ConvertFunc DEFAULT_MUTI_CREATE_FUNC =
-      [](Wrapper::Image::Ptr sampler_image) {
-        VkAttachmentDescription attachment_Des{};
-        attachment_Des.format = sampler_image->Get_format();
-        attachment_Des.samples =
-            sampler_image->Get_device()->getMaxUsableSampleCount();
-        attachment_Des.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        attachment_Des.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        attachment_Des.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        attachment_Des.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        attachment_Des.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        attachment_Des.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        return std::make_unique<Muti_Sampler_RenderTarget>(sampler_image,
-                                                           attachment_Des);
-      };
-  inline static const Create_Image_Func DEFAULT_IMAGE_CREATE_FUNC =
-      [](Wrapper::SwapChain::Ptr swapchain) {
-        return Wrapper::Image::CreateR(
-            swapchain->Get_device(), swapchain->Get_extent2D().width,
-            swapchain->Get_extent2D().height, swapchain->Get_format(),
-            VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL,
-            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-            swapchain->Get_device()->getMaxUsableSampleCount(),
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT,
-            VMA_MEMORY_USAGE_GPU_ONLY);
-      };
-  Create_ATTACHMENT_Reference CREATE_ATTACHMENT_REFERENCE_FUNC = [](int index) {
-    VkAttachmentReference mutiAttachmentRef;
-    mutiAttachmentRef.attachment = index;
-    mutiAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    return mutiAttachmentRef;
-  };
-  [[nodiscard]] VkImageLayout Get_layout() override {
-    return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-  }
-  [[nodiscard]] Wrapper::SubPass::attachment_type
-  Get_attachment_type() override {
-    return Wrapper::SubPass::ColorAttachment;
-  }
-};
+    public:
+        Muti_Sampler_RenderTarget(Wrapper::Image::Ptr images_ptr,
+                                  VkAttachmentDescription attachments_description)
+            : RenderTarget{images_ptr, attachments_description} {}
+        //   ~Muti_Sampler_RenderTarget(){}
+        inline static const ConvertFunc DEFAULT_MUTI_CREATE_FUNC =
+            [](Wrapper::Image::Ptr sampler_image)
+        {
+            VkAttachmentDescription attachment_Des{};
+            attachment_Des.format = sampler_image->Get_format();
+            attachment_Des.samples =
+                sampler_image->Get_device()->getMaxUsableSampleCount();
+            attachment_Des.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            attachment_Des.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            attachment_Des.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            attachment_Des.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            attachment_Des.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            attachment_Des.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            return std::make_unique<Muti_Sampler_RenderTarget>(sampler_image,
+                                                               attachment_Des);
+        };
+        inline static const Create_Image_Func DEFAULT_IMAGE_CREATE_FUNC =
+            [](Wrapper::SwapChain::Ptr swapchain)
+        {
+            return Wrapper::Image::CreateR(
+                swapchain->Get_device(), swapchain->Get_extent2D().width,
+                swapchain->Get_extent2D().height, swapchain->Get_format(),
+                VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL,
+                VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                swapchain->Get_device()->getMaxUsableSampleCount(),
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_COLOR_BIT,
+                VMA_MEMORY_USAGE_GPU_ONLY);
+        };
+        //   Create_ATTACHMENT_Reference CREATE_ATTACHMENT_REFERENCE_FUNC = [](int index) {
+        //     VkAttachmentReference mutiAttachmentRef;
+        //     mutiAttachmentRef.attachment = index;
+        //     mutiAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        //     return mutiAttachmentRef;
+        //   };
+        [[nodiscard]] VkImageLayout Get_layout() override
+        {
+            return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        }
+        [[nodiscard]] Wrapper::SubPass::attachment_type
+        Get_attachment_type() override
+        {
+            return Wrapper::SubPass::ColorAttachment;
+        }
+        [[nodiscard]] VkAttachmentReference Get_Attachement_Reference(int index) override
+        {
+            VkAttachmentReference finalAttachmentRef;
+            finalAttachmentRef.attachment = index;
+            finalAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            return finalAttachmentRef;
+        }
+    };
 } // namespace MoChengEngine::FrameWork::Core::Rendering

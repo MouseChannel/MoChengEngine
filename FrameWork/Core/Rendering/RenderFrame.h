@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:46:21
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-30 10:56:30
+ * @LastEditTime: 2022-12-12 15:31:28
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderFrame.h
  * @Description: nullptr
  *
@@ -37,7 +37,7 @@ private:
   Wrapper::Semaphore::Ptr m_present_finish_semaphore;
 
   ObjectPool<Wrapper::CommandBuffer::Ptr> command_buffers;
- Wrapper::FrameBuffer::Ptr m_frame_buffer ;
+  Wrapper::FrameBuffer::Ptr m_frame_buffer;
 
 public:
   RenderFrame(Wrapper::Device::Ptr &device,
@@ -50,12 +50,13 @@ public:
   [[nodiscard]] auto &Get_Render_Target() { return m_swapchain_render_targets; }
   [[nodiscard]] Wrapper::CommandPool::Ptr
   Get_command_pool(Wrapper::CommandQueue::Ptr command_queue);
-  [[nodiscard]] auto Get_render_finish_semaphore() {
+  [[nodiscard]] auto &Get_render_finish_semaphore() {
     return m_render_finish_semaphore;
   }
 
-  [[nodiscard]] auto Get_present_finish_semaphore() {
+  [[nodiscard]] auto &Get_present_finish_semaphore() {
     return m_present_finish_semaphore;
   }
+  [[nodiscard]] auto &Get_framebuffer() { return m_frame_buffer; }
 };
 } // namespace MoChengEngine::FrameWork::Core::Rendering

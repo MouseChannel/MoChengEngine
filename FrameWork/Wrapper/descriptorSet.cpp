@@ -2,14 +2,14 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-19 16:36:23
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-30 09:46:18
+ * @LastEditTime: 2022-12-11 10:16:40
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\descriptorSet.cpp
  * @Description: nullptr
  *
  * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
  */
 #include "FrameWork/Wrapper/descriptorSet.h"
- 
+
 namespace MoChengEngine::FrameWork::Wrapper {
 DescriptorSet::DescriptorSet(Device::Ptr device,
                              std::vector<UniformParameter::Ptr> params,
@@ -24,12 +24,12 @@ DescriptorSet::DescriptorSet(Device::Ptr device,
   allocInfo.descriptorSetCount = frame_count;
   allocInfo.pSetLayouts = layouts.data();
 
-  m_DescriptorSets.resize(frame_count);
+  m_handle.resize(frame_count);
   if (vkAllocateDescriptorSets(m_device->Get_handle(), &allocInfo,
-                               m_DescriptorSets.data()) != VK_SUCCESS) {
+                               m_handle.data()) != VK_SUCCESS) {
     throw std::runtime_error("Error: failed to allocate descriptor sets");
   }
-  std::cout << m_DescriptorSets.size() << std::endl;
+  std::cout << m_handle.size() << std::endl;
 
   for (int i = 0; i < frame_count; ++i) {
     // descriptorSetWrite，将params的信息，写入buffer
@@ -37,7 +37,7 @@ DescriptorSet::DescriptorSet(Device::Ptr device,
     for (const auto &param : params) {
       VkWriteDescriptorSet descriptorSetWrite{};
       descriptorSetWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-      descriptorSetWrite.dstSet = m_DescriptorSets[i];
+      descriptorSetWrite.dstSet = m_handle[i];
       descriptorSetWrite.dstArrayElement = 0;
       descriptorSetWrite.descriptorType = param->mDescriptorType;
       descriptorSetWrite.descriptorCount = param->mCount;
@@ -46,14 +46,15 @@ DescriptorSet::DescriptorSet(Device::Ptr device,
       if (param->mDescriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
         auto buffer = param->m_Buffers[i];
         VkDescriptorBufferInfo descriptorBufferInfo{
-            buffer->Get_handle(), buffer->Get_Allocation_info().offset,
-            buffer->Get_Allocation_info().size};
+            buffer->Get_handle(), buffer->Get_Buffer_info().offset,
+            buffer->Get_Buffer_info().range};
 
+        // descriptorSetWrite.pBufferInfo = buffer.
         descriptorSetWrite.pBufferInfo = &descriptorBufferInfo;
       }
 
       if (param->mDescriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
-        // descriptorSetWrite.pImageInfo = &param->mTexture->GetImageInfo();
+        descriptorSetWrite.pImageInfo = &param->mTexture->GetImageInfo();
       }
 
       descriptorSetWrites.push_back(descriptorSetWrite);

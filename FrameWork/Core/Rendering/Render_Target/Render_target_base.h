@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:56:50
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-01 09:05:58
+ * @LastEditTime: 2022-12-09 13:56:17
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.h
  * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.h
  * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.h
@@ -23,60 +23,67 @@
 #include "FrameWork/Wrapper/RenderPass.h"
 #include "FrameWork/Wrapper/Swapchain.h"
 #include "functional"
-#include "vulkan/vulkan_core.h"
+ 
+
 #include <algorithm>
 
-namespace MoChengEngine::FrameWork::Core::Rendering {
+namespace MoChengEngine::FrameWork::Core::Rendering
+{
 
-/**
- * @description: contains three object，to bind framebuffer and renderpass
- * 1. image_handle
- * 2. image_view using in framebuffer
- * 3. attachment using in renderpass
- *
- *  actually only need 2 and 3
- */
-class RenderTarget {
-private:
-  VkExtent2D extent{0, 0};
-  Wrapper::Image::Ptr images_ptr;
-  VkImage image;
-  VkImageView image_view{nullptr};
+    /**
+     * @description: contains three object，to bind framebuffer and renderpass
+     * 1. image_handle
+     * 2. image_view using in framebuffer
+     * 3. attachment using in renderpass
+     *
+     *  actually only need 2 and 3
+     */
+    class RenderTarget
+    {
+    private:
+        VkExtent2D extent{0, 0};
+        Wrapper::Image::Ptr images_ptr;
+        VkImage image;
+        VkImageView image_view{nullptr};
 
-  VkAttachmentDescription attachment_description;
+        VkAttachmentDescription attachment_description;
 
-public:
-  /**
-   * @description: convert a image Ptr to a complete render_target
-   */
-  using ConvertFunc =
-      std::function<std::unique_ptr<RenderTarget>(Wrapper::Image::Ptr)>;
-  /**
-   * @description: default convert swapchain images to final present images
-   */
-  static const ConvertFunc DEFAULT_CONVERT_FUNC;
-  /**
-   * @description: create a image Ptr
-   */
-  using Create_Image_Func =
-      std::function<Wrapper::Image::Ptr(Wrapper::SwapChain::Ptr)>;
+    public:
+        /**
+         * @description: convert a image Ptr to a complete render_target
+         */
+        using ConvertFunc =
+            std::function<std::unique_ptr<RenderTarget>(Wrapper::Image::Ptr)>;
+        /**
+         * @description: default convert swapchain images to final present images
+         */
+        static const ConvertFunc DEFAULT_CONVERT_FUNC;
+        /**
+         * @description: create a image Ptr
+         */
+        using Create_Image_Func =
+            std::function<Wrapper::Image::Ptr(Wrapper::SwapChain::Ptr)>;
 
-  using Create_ATTACHMENT_Reference = std::function<VkAttachmentReference(int)>;
-  Create_ATTACHMENT_Reference CREATE_ATTACHMENT_REFERENCE_FUNC;
+        using Create_ATTACHMENT_Reference = std::function<VkAttachmentReference(int)>;
+        // virtual  const Create_ATTACHMENT_Reference CREATE_ATTACHMENT_REFERENCE_FUNC;
 
-  RenderTarget(Wrapper::Image::Ptr images_ptr,
-               VkAttachmentDescription attachments_description);
-  //   RenderTarget(VkImage images, VkImageView images_view, VkExtent2D extent,
-  //                VkAttachmentDescription attachments_description);
-//   ~RenderTarget();
+        virtual VkAttachmentReference Get_Attachement_Reference(int index) = 0;
+        RenderTarget(Wrapper::Image::Ptr images_ptr,
+                     VkAttachmentDescription attachments_description);
+      
+        static VkFormat FindSupportedFormat(const Wrapper::Device::Ptr &device,
+                                            const std::vector<VkFormat> &candidates,
+                                            VkImageTiling tiling,
+                                            VkFormatFeatureFlags features);
 
-  [[nodiscard]] auto Get_extent() { return extent; }
-  [[nodiscard]] auto Get_image() { return image; }
-  [[nodiscard]] auto Get_image_view() { return image_view; }
-  [[nodiscard]] auto Get_attachments_description() {
-    return attachment_description;
-  }
-  virtual VkImageLayout Get_layout() = 0;
-  virtual Wrapper::SubPass::attachment_type Get_attachment_type() = 0;
-};
+        [[nodiscard]] auto Get_extent() { return extent; }
+        [[nodiscard]] auto Get_image() { return image; }
+        [[nodiscard]] auto & Get_image_view() { return image_view; }
+        [[nodiscard]] auto Get_attachments_description()
+        {
+            return attachment_description;
+        }
+        virtual VkImageLayout Get_layout() = 0;
+        virtual Wrapper::SubPass::attachment_type Get_attachment_type() = 0;
+    };
 } // namespace MoChengEngine::FrameWork::Core::Rendering

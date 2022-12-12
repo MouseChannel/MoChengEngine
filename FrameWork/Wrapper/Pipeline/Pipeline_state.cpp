@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-21 17:38:49
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-24 13:37:47
+ * @LastEditTime: 2022-12-12 11:36:38
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Pipeline\Pipeline_state.cpp
  * @Description: nullptr
  *
@@ -10,6 +10,7 @@
  */
 #include "Pipeline_state.h"
 #include "FrameWork/Wrapper/Pipeline/Pipeline_state.h"
+#include <utility>
 namespace MoChengEngine::FrameWork::Wrapper {
 PipelineState::PipelineState() {}
 PipelineState::~PipelineState() {}
@@ -17,12 +18,14 @@ PipelineState::~PipelineState() {}
 void PipelineState::Make_VertexInput_Info(
     std::vector<VkVertexInputBindingDescription> &vertexbindingDes,
     std::vector<VkVertexInputAttributeDescription> &attributeDes) {
+  m_vertexbindingDes = vertexbindingDes;
+  m_attributeDes = attributeDes;
   m_VertexInputInfo.sType =
       VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-  m_VertexInputInfo.vertexBindingDescriptionCount = vertexbindingDes.size();
-  m_VertexInputInfo.pVertexBindingDescriptions = vertexbindingDes.data();
-  m_VertexInputInfo.vertexAttributeDescriptionCount = attributeDes.size();
-  m_VertexInputInfo.pVertexAttributeDescriptions = attributeDes.data();
+  m_VertexInputInfo.vertexBindingDescriptionCount = m_vertexbindingDes.size();
+  m_VertexInputInfo.pVertexBindingDescriptions = m_vertexbindingDes.data();
+  m_VertexInputInfo.vertexAttributeDescriptionCount = m_attributeDes.size();
+  m_VertexInputInfo.pVertexAttributeDescriptions = m_attributeDes.data();
 }
 
 void PipelineState::Make_AssemblyInput_Info() {
@@ -100,7 +103,7 @@ void PipelineState::Make_BlendState_Info() {
   m_BlendState.pAttachments = m_BlendAttachments.data();
 }
 
-void PipelineState::Make_LayoutCreate_Info(VkDescriptorSetLayout layout) {
+void PipelineState::Make_LayoutCreate_Info(VkDescriptorSetLayout &layout) {
   m_LayoutState.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
   m_LayoutState.setLayoutCount = 1;
   m_LayoutState.pSetLayouts = &layout;
@@ -113,8 +116,17 @@ void PipelineState::Set_Viewports_and_Scissors(
   m_Viewports = viewports;
   m_Scissors = scissors;
 }
-void PipelineState::Set_renderpass(RenderPass::Ptr renderpass) {
-  m_renderpass = renderpass;
+
+void PipelineState::Make_DepthStecil_Info() {
+  m_DepthStencilState.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+
+  m_DepthStencilState.depthTestEnable = VK_TRUE;
+  m_DepthStencilState.depthWriteEnable = VK_TRUE;
+  m_DepthStencilState.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+}
+void PipelineState::Set_renderpass(RenderPass::Ptr &renderpass) {
+  m_renderpass = std::forward<RenderPass::Ptr>(renderpass);
 }
 void PipelineState::fill_default() {
   Make_AssemblyInput_Info();
@@ -122,6 +134,6 @@ void PipelineState::fill_default() {
   Make_Raster_Info();
   Make_BlendAttachment_Info();
   Make_BlendState_Info();
-//   Make_DepthStecil_Info();
+  Make_DepthStecil_Info();
 }
 } // namespace MoChengEngine::FrameWork::Wrapper

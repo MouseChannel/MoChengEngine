@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-28 10:45:48
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-30 21:54:59
+ * @LastEditTime: 2022-12-10 14:00:17
  * @FilePath: \MoChengEngine\FrameWork\Core\Texture\Texture.h
  * @Description: nullptr
  *
@@ -30,10 +30,10 @@ private:
   VkDescriptorImageInfo mImageInfo{};
 
 public:
-  Texture(Wrapper::Device::Ptr device,
-          Wrapper::CommandBuffer::Ptr command_buffer, const std::string &path);
+  Texture(Wrapper::Device::Ptr device, COMMAND command,
+          const std::string &path);
   ~Texture();
-  [[nodiscard]] auto GetImageInfo() { return mImageInfo; }
+  [[nodiscard]] auto &GetImageInfo() { return mImageInfo; }
 };
 
 } // namespace MoChengEngine::FrameWork

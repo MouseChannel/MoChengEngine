@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-29 19:22:31
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-30 21:45:27
+ * @LastEditTime: 2022-12-12 15:03:51
  * @FilePath: \MoChengEngine\FrameWork\Core\UniformManager\UniformManager.h
  * @Description: nullptr
  *
@@ -10,13 +10,16 @@
  */
 #pragma once
 #include "FrameWork/Base/baseHeader.h"
-#include "description.h"
 #include "FrameWork/Wrapper/Command/CommandBuffer.h"
+#include "FrameWork/Wrapper/Command/CommandQueue.h"
 #include "FrameWork/Wrapper/DescriptorSetLayout.h"
 #include "FrameWork/Wrapper/descriptorPool.h"
 #include "FrameWork/Wrapper/descriptorSet.h"
+#include "description.h"
+#include <functional>
 
 namespace MoChengEngine::FrameWork {
+
 
 class UniformManager {
 
@@ -32,14 +35,14 @@ public:
   UniformManager() = default;
   ~UniformManager() = default;
   void Prepare(const Wrapper::Device::Ptr device,
-               const Wrapper::CommandBuffer::Ptr command_buffer,
+               const COMMAND command,
                int frame_count);
   [[nodiscard]] auto &GetDescriptorLayout() const {
     return m_DescriptorSetLayout;
   }
 
-  [[nodiscard]] auto GetDescriptorSet(int frameCount) const {
-    return m_DescriptorSet->Get_handle()[frameCount];
+  [[nodiscard]] auto &GetDescriptorSet( ) const {
+    return m_DescriptorSet->Get_handle() ;
   }
 };
 struct VPMatrices {

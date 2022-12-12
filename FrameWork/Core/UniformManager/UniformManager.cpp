@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-29 19:22:34
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-30 21:47:07
+ * @LastEditTime: 2022-12-11 09:53:58
  * @FilePath: \MoChengEngine\FrameWork\Core\UniformManager\UniformManager.cpp
  * @Description: nullptr
  *
@@ -11,8 +11,7 @@
 #include "UniformManager.h"
 namespace MoChengEngine::FrameWork {
 void UniformManager::Prepare(const Wrapper::Device::Ptr device,
-                          const Wrapper::CommandBuffer::Ptr command_buffer,
-                          int frame_count) {
+                             const COMMAND command, int frame_count) {
   m_Device = device;
   auto vpParam = Wrapper::UniformParameter::create();
   vpParam->mBinding = 0;
@@ -25,7 +24,9 @@ void UniformManager::Prepare(const Wrapper::Device::Ptr device,
 
     auto buffer = Wrapper::Buffer::CreateR(
         device, vpParam->mSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-        VMA_MEMORY_USAGE_GPU_ONLY, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        VMA_MEMORY_USAGE_GPU_ONLY, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        buffer->Update(nullptr, vpParam->mSize);
     vpParam->m_Buffers.push_back(buffer);
   }
 
@@ -41,7 +42,9 @@ void UniformManager::Prepare(const Wrapper::Device::Ptr device,
   for (int i = 0; i < frame_count; ++i) {
     auto buffer = Wrapper::Buffer::CreateR(
         device, objectParam->mSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-        VMA_MEMORY_USAGE_GPU_ONLY, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        VMA_MEMORY_USAGE_GPU_ONLY, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        buffer->Update(nullptr, objectParam->mSize);
     objectParam->m_Buffers.push_back(buffer);
   }
 
@@ -53,7 +56,7 @@ void UniformManager::Prepare(const Wrapper::Device::Ptr device,
   textureParam->mDescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
   textureParam->mStage = VK_SHADER_STAGE_FRAGMENT_BIT;
   textureParam->mTexture = std::make_unique<Texture>(
-      m_Device, command_buffer, "D:\\cpp\\vk\\assets\\jqm.png");
+      m_Device, command , "D:\\cpp\\vk\\assets\\jqm.png");
 
   m_UniformParams.push_back(textureParam);
 
@@ -62,7 +65,6 @@ void UniformManager::Prepare(const Wrapper::Device::Ptr device,
 
   m_DescriptorPool =
       Wrapper::DescriptorPool::Create(m_Device, m_UniformParams, frame_count);
-  
 
   m_DescriptorSet = Wrapper::DescriptorSet::Create(
       device, m_UniformParams, m_DescriptorSetLayout, m_DescriptorPool,
