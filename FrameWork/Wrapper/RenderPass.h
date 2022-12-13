@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-14 21:56:24
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-11 10:27:28
+ * @LastEditTime: 2022-12-13 16:13:33
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\RenderPass.h
  * @Description: nullptr
  *
@@ -96,20 +96,20 @@ public:
     m_SubPassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
     m_SubPassDescription.colorAttachmentCount = 1;
-    // static_cast<uint32_t>(m_ColorAttachmentReferences.size());
+
     m_SubPassDescription.pColorAttachments = &m_ColorAttachmentReference;
-    // m_ColorAttachmentReferences.data();
+
+    // m_SubPassDescription.pColorAttachments = &m_ResolvedAttachmentReference;
 
     m_SubPassDescription.inputAttachmentCount = 0;
     // static_cast<uint32_t>(m_InputAttachmentReferences.size());
     m_SubPassDescription.pInputAttachments = nullptr;
     // m_InputAttachmentReferences.data();
-    m_SubPassDescription.pResolveAttachments = &m_ResolvedAttachmentReference;
+    m_SubPassDescription.pResolveAttachments =
+    &m_ResolvedAttachmentReference;
 
     m_SubPassDescription.pDepthStencilAttachment =
-        m_DepthStencilAttachmentReference.layout == VK_IMAGE_LAYOUT_UNDEFINED
-            ? nullptr
-            : &m_DepthStencilAttachmentReference;
+       &m_DepthStencilAttachmentReference;
   }
 
   [[nodiscard]] auto GetSubPassDescription() const {

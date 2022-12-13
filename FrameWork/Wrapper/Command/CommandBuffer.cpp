@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 14:36:55
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-12 13:21:50
+ * @LastEditTime: 2022-12-13 14:04:51
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Command\CommandBuffer.cpp
  * @Description: nullptr
  *
@@ -32,18 +32,12 @@ CommandBuffer::CommandBuffer(Device::Ptr device, CommandPool::Ptr commandPool,
       "falied to create commandBuffer");
 }
 CommandBuffer::~CommandBuffer() {
-  std::cout << "Free command buffer"<<m_handle << std::endl;
+  std::cout << "Free command buffer" << m_handle << std::endl;
   vkFreeCommandBuffers(m_device->Get_handle(), m_commandPool->Get_handle(), 1,
                        &m_handle);
 }
 
-void CommandBuffer::Add_Task(std::function<void()> task,
-                             VkCommandBufferUsageFlags flag) {
-
-  Begin(flag);
-
-  task();
-}
+void CommandBuffer::Add_Task(Command_Buffer_Task task) { task(); }
 void CommandBuffer::Wait(CommandQueue::Ptr command_queue) {
   End();
   VkSubmitInfo submitInfo{};
@@ -89,10 +83,10 @@ void CommandBuffer::BindVertexBuffer(const std::vector<VkBuffer> &buffers) {
                          buffers.data(), offsets.data());
 }
 void CommandBuffer::BindDescriptorSet(const VkPipelineLayout layout,
-                         const VkDescriptorSet &descriptorSet) {
-    vkCmdBindDescriptorSets(m_handle, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            layout, 0, 1, &descriptorSet, 0, nullptr);
-  }
+                                      const VkDescriptorSet &descriptorSet) {
+  vkCmdBindDescriptorSets(m_handle, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0,
+                          1, &descriptorSet, 0, nullptr);
+}
 void CommandBuffer::BindIndexBuffer(const VkBuffer &buffer) {
   vkCmdBindIndexBuffer(m_handle, buffer, 0, VK_INDEX_TYPE_UINT32);
 }
@@ -125,7 +119,7 @@ void CommandBuffer::CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage,
 }
 
 void CommandBuffer::TransferImageLayout(
-    VkImageMemoryBarrier &imageMemoryBarrier, VkPipelineStageFlags srcStageMask,
+    VkImageMemoryBarrier  imageMemoryBarrier, VkPipelineStageFlags srcStageMask,
     VkPipelineStageFlags dstStageMask) {
   vkCmdPipelineBarrier(m_handle, srcStageMask, dstStageMask, 0, 0,
                        nullptr,    // MemoryBarrier

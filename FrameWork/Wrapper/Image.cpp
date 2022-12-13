@@ -112,6 +112,10 @@ Image::Make_View_Info(const VkImageAspectFlags aspectFlags) {
   imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
   imageViewCreateInfo.format = m_format;
   imageViewCreateInfo.image = m_handle;
+  imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+  imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+  imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+  imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
   imageViewCreateInfo.subresourceRange.aspectMask = aspectFlags;
   imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
   imageViewCreateInfo.subresourceRange.levelCount = 1;
@@ -126,18 +130,22 @@ void Image::FillImageData(size_t size, void *pData, Buffer::Ptr &buffer,
   assert(pData);
   assert(size);
 
-  
   buffer->Update(pData, size);
   commandBuffer->CopyBufferToImage(buffer->Get_handle(), m_handle, m_layout,
                                    m_width, m_height);
+  //   return [=]() {
+  //     commandBuffer->CopyBufferToImage(buffer->Get_handle(), m_handle,
+  //     m_layout,
+  //                                      m_width, m_height);
 }
+
 // 使用barrier修改image格式
 void Image::SetImageLayout(VkImageLayout newLayout,
                            VkPipelineStageFlags srcStageMask,
                            VkPipelineStageFlags dstStageMask,
                            VkImageSubresourceRange subresrouceRange,
                            CommandBuffer::Ptr commandBuffer) {
-  auto &oldLayout = m_layout;
+  auto oldLayout = m_layout;
   VkImageMemoryBarrier imageMemoryBarrier{};
   imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
   imageMemoryBarrier.oldLayout = oldLayout;
@@ -179,14 +187,18 @@ void Image::SetImageLayout(VkImageLayout newLayout,
   default:
     break;
   }
-
+  m_layout = newLayout;
   commandBuffer->TransferImageLayout(imageMemoryBarrier, srcStageMask,
                                      dstStageMask);
-  m_layout = newLayout;
+
+  //   return [=]() {
+  //     commandBuffer->TransferImageLayout(imageMemoryBarrier, srcStageMask,
+  //                                        dstStageMask);
+  //   };
 }
 VkImageView Image::CreateView(VkImageViewCreateInfo viewInfo,
                               Device::Ptr device) {
-  VkImageView res{nullptr};
+  VkImageView res{VK_NULL_HANDLE};
   VK_CHECK_SUCCESS(
       vkCreateImageView(device->Get_handle(), &viewInfo, nullptr, &res),
       "Error: failed to create image view");

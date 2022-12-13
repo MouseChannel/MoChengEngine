@@ -203,7 +203,7 @@ namespace MoChengEngine::FrameWork::Wrapper
     }
 
     VkResult SwapChain::Acquire_next_image(uint32_t &image_index,
-                                           VkSemaphore present_finish_semaphore,
+                                           VkSemaphore &present_finish_semaphore,
                                            VkFence fence)
     {
         return vkAcquireNextImageKHR(m_device->Get_handle(), m_handle, UINT64_MAX,

@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:57:25
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-09 13:39:02
+ * @LastEditTime: 2022-12-13 12:50:21
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.cpp
  * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.cpp
  * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.cpp
@@ -19,22 +19,22 @@ namespace MoChengEngine::FrameWork::Core::Rendering
 {
     RenderTarget::RenderTarget(Wrapper::Image::Ptr images_p,
                                VkAttachmentDescription attachment_description)
-        : images_ptr{images_p},
+        : image_ptr{images_p},
           attachment_description{attachment_description}, image{images_p->m_handle},
           image_view{images_p->Get_view()}, extent{images_p->Get_extent2D()}
     {
-        images_ptr = images_p;
-        //   for (auto i : images_ptr) {
+        
+        //   for (auto i : image_ptr) {
         //     if (i->Get_extent().height != extent.height &&
         //         i->Get_extent().width != extent.width) {
         //       throw std::runtime_error("RenderTarget images are in different
         //       extent");
         //     }
         //   }
-        //   std::transform(images_ptr.begin(), images_ptr.end(), image.end(),
+        //   std::transform(image_ptr.begin(), image_ptr.end(), image.end(),
         //                  [](Wrapper::Image::Ptr ptr) { return ptr->Get_handle();
         //                  });
-        //   std::transform(images_ptr.begin(), images_ptr.end(), Image_views.end(),
+        //   std::transform(image_ptr.begin(), image_ptr.end(), Image_views.end(),
         //                  [](Wrapper::Image::Ptr ptr) { return ptr->Get_view(); });
     }
 

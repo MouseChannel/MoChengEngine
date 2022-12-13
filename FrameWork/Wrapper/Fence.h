@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-15 15:24:53
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-19 14:18:15
+ * @LastEditTime: 2022-12-12 20:48:41
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Fence.h
  * @Description: nullptr
  *
@@ -22,7 +22,7 @@ private:
 public:
 void Reset();
 void Wait(uint64_t timeout= UINT64_MAX);
-  Fence(Device::Ptr &device);
+  Fence(Device::Ptr  device);
   ~Fence();
 };
 } // namespace MoChengEngine::FrameWork::Wrapper

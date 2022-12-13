@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:08:46
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-09 12:12:24
+ * @LastEditTime: 2022-12-12 21:36:52
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Swapchain.h
  * @Description: nullptr
  *
@@ -53,7 +53,7 @@ namespace MoChengEngine::FrameWork::Wrapper
         SwapChain(Device::Ptr device, WindowSurface::Ptr surface);
         ~SwapChain();
         VkResult Acquire_next_image(uint32_t &image_index,
-                                    VkSemaphore present_finish_semaphore,
+                                    VkSemaphore &present_finish_semaphore,
                                     VkFence fence);
 
         [[nodiscard]] auto Get_images() { return m_swapchain_images; }

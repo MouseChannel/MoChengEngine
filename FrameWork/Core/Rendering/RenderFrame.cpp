@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:46:25
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-10 14:51:07
+ * @LastEditTime: 2022-12-13 13:56:17
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderFrame.cpp
  * @Description: nullptr
  *
@@ -20,15 +20,16 @@
 #include "vulkan/vulkan_core.h"
 #include <algorithm>
 namespace MoChengEngine::FrameWork::Core::Rendering {
-RenderFrame::RenderFrame(
-    Wrapper::Device::Ptr &device,
-    std::vector<std::unique_ptr<RenderTarget>> &&renderTargets)
-    : m_device{device}, m_swapchain_render_targets{std::move(renderTargets)},
-      m_render_finish_semaphore{Wrapper::Semaphore::Create(m_device)},
+RenderFrame::RenderFrame(Wrapper::Device::Ptr &device)
+    : m_device{device}, m_render_finish_semaphore{Wrapper::Semaphore::Create(
+                            m_device)},
       m_present_finish_semaphore{Wrapper::Semaphore::Create(m_device)} {}
 
 RenderFrame::~RenderFrame() {}
-void RenderFrame::Prepare(Wrapper::RenderPass::Ptr render_pass) {
+void RenderFrame::Prepare(
+    Wrapper::RenderPass::Ptr render_pass,
+    std::vector<std::unique_ptr<RenderTarget>> &&renderTarget) {
+  m_swapchain_render_targets = std::move(renderTarget);
 
   Prepare_frame_buffers(render_pass);
 }

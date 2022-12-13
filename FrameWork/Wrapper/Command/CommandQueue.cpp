@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:26:37
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-11-20 13:28:06
+ * @LastEditTime: 2022-12-13 10:03:02
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Command\CommandQueue.cpp
  * @Description: nullptr
  *
@@ -28,8 +28,8 @@ VkResult CommandQueue::Submit(const std::vector<VkSubmitInfo> &submit_infos,
   return vkQueueSubmit(m_handle, submit_infos.size(), submit_infos.data(),
                        fence);
 }
-VkResult CommandQueue::Present(VkPresentInfoKHR *present_info) {
-  return vkQueuePresentKHR(m_handle, present_info);
+VkResult CommandQueue::Present(VkPresentInfoKHR &present_info) {
+  return vkQueuePresentKHR(m_handle, &present_info);
 }
 
 // 等待commandBuffer队列里的所有command全完成

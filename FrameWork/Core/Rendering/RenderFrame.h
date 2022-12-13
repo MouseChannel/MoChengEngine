@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:46:21
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-12 15:31:28
+ * @LastEditTime: 2022-12-13 13:56:13
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderFrame.h
  * @Description: nullptr
  *
@@ -40,10 +40,10 @@ private:
   Wrapper::FrameBuffer::Ptr m_frame_buffer;
 
 public:
-  RenderFrame(Wrapper::Device::Ptr &device,
-              std::vector<std::unique_ptr<RenderTarget>> &&renderTarget);
+  RenderFrame(Wrapper::Device::Ptr &device);
   ~RenderFrame();
-  void Prepare(Wrapper::RenderPass::Ptr render_pass);
+  void Prepare(Wrapper::RenderPass::Ptr render_pass,
+    std::vector<std::unique_ptr<RenderTarget>> &&renderTarget);
   void Prepare_frame_buffers(Wrapper::RenderPass::Ptr render_pass);
   Wrapper::CommandBuffer::Ptr
   request_command_buffer(Wrapper::CommandQueue::Ptr command_queue);

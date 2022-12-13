@@ -33,7 +33,7 @@ public:
   ~CommandQueue();
   VkResult Submit(const std::vector<VkSubmitInfo> &submit_infos, VkFence fence);
 
-  VkResult Present(VkPresentInfoKHR *present_info);
+  VkResult Present(VkPresentInfoKHR  &present_info);
   void Submit_and_wait(const std::vector<VkSubmitInfo> &submit_infos,
                        VkFence fence = VK_NULL_HANDLE);
   [[nodiscard]] auto &Get_family_propertie() { return familyProperties; }

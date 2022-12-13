@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-29 18:50:26
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-12 15:21:48
+ * @LastEditTime: 2022-12-13 13:21:44
  * @FilePath: \MoChengEngine\FrameWork\Core\Texture\Texture.cpp
  * @Description: nullptr
  *
@@ -10,6 +10,7 @@
  */
 #include "Texture.h"
 #include "FrameWork/Wrapper/Buffer.h"
+#include "FrameWork/Wrapper/Command/CommandBuffer.h"
 #include "vulkan/vulkan_core.h"
 // #include "FrameWork/Wrapper/Command/CommandPool.h"
 
@@ -44,28 +45,31 @@ Texture::Texture(Wrapper::Device::Ptr device, COMMAND command,
   region.baseMipLevel = 0;
   region.levelCount = 1;
   auto command_buffer = command.request_command_buffer();
-  command_buffer->Add_Task([&]() {
-    mImage->SetImageLayout(
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_PIPELINE_STAGE_TRANSFER_BIT,
-        VK_PIPELINE_STAGE_TRANSFER_BIT, region, command_buffer);
-  });
+  // convert image_layout to TRANSFER_DST to wait data arrive
+  //   auto set_image_layout_task =
 
+  command_buffer->Begin();
+  //   command_buffer->Add_Task(set_image_layout_task);
+  mImage->SetImageLayout(
+      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_PIPELINE_STAGE_TRANSFER_BIT,
+      VK_PIPELINE_STAGE_TRANSFER_BIT, region, command_buffer);
   command_buffer->Wait(command.queue);
-  //   command_buffer = command.request_command_buffer();
+  // fill image data
   auto image_buffer = Wrapper::Buffer::Create_Image_buffer(device, texSize);
-  command_buffer->Add_Task([&]() {
-    mImage->FillImageData(texSize, (void *)pixels, image_buffer,
-                          command_buffer);
-  });
+  //   auto fill_image_data_task = mImage->FillImageData(
+  //       texSize, (void *)pixels, image_buffer, command_buffer);
+  command_buffer->Begin();
+  mImage->FillImageData(texSize, (void *)pixels, image_buffer, command_buffer);
+  //   command_buffer->Add_Task(fill_image_data_task);
 
   command_buffer->Wait(command.queue);
-  //   command_buffer = command.request_command_buffer();
-  command_buffer->Add_Task([&]() {
-    mImage->SetImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                           VK_PIPELINE_STAGE_TRANSFER_BIT,
-                           VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, region,
-                           command_buffer);
-  });
+  // convert image_layout to read_only
+  //   set_image_layout_task =
+  command_buffer->Begin();
+  mImage->SetImageLayout(
+      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_PIPELINE_STAGE_TRANSFER_BIT,
+      VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, region, command_buffer);
+  //   command_buffer->Add_Task(set_image_layout_task);
   command_buffer->Wait(command.queue);
 
   stbi_image_free(pixels);

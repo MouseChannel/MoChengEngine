@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-13 12:34:10
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-12 15:43:04
+ * @LastEditTime: 2022-12-13 15:36:00
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderContext.cpp
  * @Description: nullptr
  *
@@ -44,26 +44,37 @@ void RenderContext::Prepare() {
   // make render_targets and fill render_frames
 
   for (auto i = 0; i < m_swap_chain->Get_image_count(); i++) {
+
+    render_frames.emplace_back(std::make_unique<RenderFrame>(m_device));
+    // make a  temp command_buffer
+    auto command_buffer =
+        render_frames.back()->request_command_buffer(m_command_queue);
+    command_buffer->Begin();
     std::vector<std::unique_ptr<RenderTarget>> current_frame_render_targets;
-    // first: origin swap_chain_image
+   
+
     current_frame_render_targets.emplace_back(
         Final_RenderTarget::DEFAULT_FINAL_CREATE_FUNC(
-            m_swap_chain->Get_images()[i]));
+            m_swap_chain->Get_images()[i], command_buffer));
+ 
 
-    // second: Muti_Sampler_RenderTarget
     current_frame_render_targets.emplace_back(
         Muti_Sampler_RenderTarget::DEFAULT_MUTI_CREATE_FUNC(
-            Muti_Sampler_RenderTarget::DEFAULT_IMAGE_CREATE_FUNC(
-                m_swap_chain)));
-    // third: depth_RenderTarget
-    current_frame_render_targets.emplace_back(
+            Muti_Sampler_RenderTarget::DEFAULT_IMAGE_CREATE_FUNC(m_swap_chain),
+            command_buffer));
+ 
+
+    current_frame_render_targets.push_back(
         Depth_RenderTarget::DEFAULT_DEPTH_CREATE_FUNC(
-            Depth_RenderTarget::DEFAULT_IMAGE_CREATE_FUNC(m_swap_chain)));
+            Depth_RenderTarget::DEFAULT_IMAGE_CREATE_FUNC(m_swap_chain),
+            command_buffer));
+ 
+    command_buffer->Wait(m_command_queue);
 
     Prepare_RenderPass(current_frame_render_targets);
-    render_frames.emplace_back(std::make_unique<RenderFrame>(
-        m_device, std::move(current_frame_render_targets)));
-    render_frames.back()->Prepare(m_render_pass);
+
+    render_frames.back()->Prepare(m_render_pass,
+                                  std::move(current_frame_render_targets));
   }
 }
 
@@ -103,7 +114,7 @@ void RenderContext::Prepare_RenderPass(
 }
 
 Wrapper::CommandBuffer::Ptr RenderContext::Begin() {
-  Begin_frame();
+  //   Begin_frame();
   return Get_active_frame()->request_command_buffer(m_command_queue);
 }
 
@@ -135,12 +146,11 @@ void RenderContext::Submit(
 
   // 提交哪些命令
 
-  submitInfo.commandBufferCount = commandBuffers.size();
   std::vector<VkCommandBuffer> vkcommand_buffers;
   for (const auto &i : commandBuffers) {
     vkcommand_buffers.emplace_back(i->Get_handle());
   }
- 
+  submitInfo.commandBufferCount = vkcommand_buffers.size();
   submitInfo.pCommandBuffers = vkcommand_buffers.data();
 
   submitInfo.signalSemaphoreCount = 1;
@@ -160,7 +170,7 @@ void RenderContext::End_frame(VkSemaphore &submit_finish_semaphone) {
   present_info.swapchainCount = 1;
   present_info.pSwapchains = &m_swap_chain->Get_handle();
   present_info.pImageIndices = &active_frame_index;
-  m_command_queue->Present(&present_info);
+  auto pre_res = m_command_queue->Present(present_info);
 }
 void RenderContext::Add_Prepare_command_buffers(
     std::vector<Wrapper::CommandBuffer::Ptr> command_buffers) {
