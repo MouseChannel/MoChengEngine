@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 14:36:55
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-13 14:04:51
+ * @LastEditTime: 2022-12-19 12:55:58
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Command\CommandBuffer.cpp
  * @Description: nullptr
  *
@@ -26,7 +26,7 @@ CommandBuffer::CommandBuffer(Device::Ptr device, CommandPool::Ptr commandPool,
   allocInfo.commandPool = m_commandPool->Get_handle();
   allocInfo.level = asSecondary ? VK_COMMAND_BUFFER_LEVEL_SECONDARY
                                 : VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-
+ 
   VK_CHECK_SUCCESS(
       vkAllocateCommandBuffers(m_device->Get_handle(), &allocInfo, &m_handle),
       "falied to create commandBuffer");
@@ -93,12 +93,11 @@ void CommandBuffer::BindIndexBuffer(const VkBuffer &buffer) {
 void CommandBuffer::DrawIndex(size_t indexCount) {
   vkCmdDrawIndexed(m_handle, indexCount, 1, 0, 0, 0);
 }
-void CommandBuffer::CopyBufferToBuffer(
-    VkBuffer srcBuffer, VkBuffer dstBuffer, uint32_t copyInfoCount,
-    const std::vector<VkBufferCopy> &copyInfos) {
-  vkCmdCopyBuffer(m_handle, srcBuffer, dstBuffer, copyInfoCount,
-                  copyInfos.data());
+void CommandBuffer::Draw(size_t indexCount) {
+
+  vkCmdDraw(m_handle, indexCount, 1, 0, 0);
 }
+
 void CommandBuffer::CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage,
                                       VkImageLayout dstImageLayout,
                                       uint32_t width, uint32_t height) {
@@ -118,12 +117,19 @@ void CommandBuffer::CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage,
                          &region);
 }
 
-void CommandBuffer::TransferImageLayout(
-    VkImageMemoryBarrier  imageMemoryBarrier, VkPipelineStageFlags srcStageMask,
-    VkPipelineStageFlags dstStageMask) {
+void CommandBuffer::TransferImageLayout(VkImageMemoryBarrier imageMemoryBarrier,
+                                        VkPipelineStageFlags srcStageMask,
+                                        VkPipelineStageFlags dstStageMask) {
   vkCmdPipelineBarrier(m_handle, srcStageMask, dstStageMask, 0, 0,
                        nullptr,    // MemoryBarrier
                        0, nullptr, // BufferMemoryBarrier
                        1, &imageMemoryBarrier);
+}
+
+void CommandBuffer::CopyBufferToBuffer(VkBuffer src_buffer, VkBuffer dst_buffer,
+                                       VkDeviceSize size) {
+  VkBufferCopy copy_info{};
+  copy_info.size = size;
+  vkCmdCopyBuffer(m_handle, src_buffer, dst_buffer, 1, &copy_info);
 }
 } // namespace MoChengEngine::FrameWork::Wrapper

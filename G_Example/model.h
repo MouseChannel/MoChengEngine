@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-22 14:08:41
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-12 12:10:34
+ * @LastEditTime: 2022-12-18 11:09:17
  * @FilePath: \MoChengEngine\G_Example\model.h
  * @Description: nullptr
  *
@@ -10,9 +10,10 @@
  */
 #pragma once
 #include "FrameWork/Base/baseHeader.h"
+#include "FrameWork/Core/UniformManager/UniformManager.h"
 #include "FrameWork/Wrapper/Buffer.h"
+#include "FrameWork/Wrapper/Command/CommandBuffer.h"
 #include "FrameWork/Wrapper/Device.h"
-
 #include "tools/tiny_obj_loader.h"
 
 namespace MoChengEngine::FrameWork {
@@ -20,7 +21,9 @@ struct Vertex {
   glm::vec3 mPosition;
   glm::vec3 mColor;
 };
+
 class Model {
+
 private:
   std::vector<float> mPositions{};
   std::vector<float> mColors{};
@@ -32,7 +35,7 @@ private:
   Wrapper::Buffer::Ptr mUVBuffer{nullptr};
 
   Wrapper::Buffer::Ptr mIndexBuffer{nullptr};
-  //   ObjectUniform m_Uniform;
+  ObjectUniform m_Uniform{};
   float mAngle{0.0f};
 
 public:
@@ -40,30 +43,31 @@ public:
   static Ptr Create(const Wrapper::Device::Ptr device) {
     return std::make_shared<Model>(device);
   }
-  Model(const Wrapper::Device::Ptr device) : m_device{device} {}
-  ~Model() = default;
+  Model(const Wrapper::Device::Ptr device) : m_device{device} {
+    // m_Uniform.mModelMatrix = glm::rotate(glm::mat4(1.0f),
+    // glm::radians(-90.0f),
+    //                                      glm::vec3(1.0f, 0.0f, 0.0f));
+  }
+
   std::vector<VkVertexInputBindingDescription>
   getVertexInputBindingDescriptions();
   std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
-  [[nodiscard]] auto getVertexBuffers() const {
-    std::vector<VkBuffer> buffers{mPositionBuffer->Get_handle(),
-                                  mUVBuffer->Get_handle()};
-
-    // std::cout<<a<<std::endl;
-    return buffers;
+  [[nodiscard]] std::vector<VkBuffer> getVertexBuffers() const {
+    return {mPositionBuffer->Get_handle(), mUVBuffer->Get_handle()};
   }
 
   [[nodiscard]] auto getIndexBuffer() const { return mIndexBuffer; }
 
   [[nodiscard]] auto getIndexCount() const { return mIndexDatas.size(); }
-  //   [[nodiscard]] auto getUniform() const { return m_Uniform; }
+  [[nodiscard]] auto getUniform() const { return m_Uniform; }
 
   void setModelMatrix(const glm::mat4 matrix) {
     // m_Uniform.mModelMatrix = matrix;
   }
   void update();
 
-  void loadModel(const std::string &path, const Wrapper::Device::Ptr &device);
+  void loadModel(const std::string &path, const Wrapper::Device::Ptr &device,
+                 Wrapper::CommandBuffer::Ptr command);
 };
 } // namespace MoChengEngine::FrameWork

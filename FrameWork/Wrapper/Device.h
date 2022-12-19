@@ -2,15 +2,15 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:15:12
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-01 11:08:57
+ * @LastEditTime: 2022-12-19 15:00:58
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Device.h
  * @Description: nullptr
  *
  * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
  */
 #pragma once
- #include <vma/vk_mem_alloc.h>
 #include "FrameWork/Base/baseHeader.h"
+#include <vma/vk_mem_alloc.h>
 
 #include "FrameWork/Wrapper/Base/WrapperBase.hpp"
 #include "FrameWork/Wrapper/Command/CommandQueue.h"
@@ -27,7 +27,7 @@ class Device : public WrapperBase<VkDevice, Device> {
 private:
   //   VkDevice m_handle;
   VmaAllocator allocator;
-
+  std::vector<float> queuePriority;
   PhysicalDevice::Ptr m_gpu;
   Instance::Ptr m_instance;
   WindowSurface::Ptr m_surface;

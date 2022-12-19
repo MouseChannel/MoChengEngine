@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 17:00:17
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-13 15:33:19
+ * @LastEditTime: 2022-12-19 12:43:57
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Image.h
  * @Description: nullptr
  *
@@ -16,8 +16,8 @@
 #include "FrameWork/Wrapper/Base/WrapperBase.hpp"
 #include "FrameWork/Wrapper/Buffer.h"
 #include "FrameWork/Wrapper/Command/CommandBuffer.h"
+#include "vulkan/vulkan_core.h"
 #include <stdint.h>
-
 
 namespace MoChengEngine::FrameWork::Wrapper {
 class Image : public Resource<VkImage, Image> {
@@ -44,13 +44,16 @@ public:
         const VkSampleCountFlagBits sample,
         const VkMemoryPropertyFlags properties,
         const VkImageAspectFlags aspectFlags,
-        const VmaMemoryUsage memory_usage);
-  Image(const Device::Ptr device, VkImage image_handle, const VkExtent3D extent,
-        VkFormat format, bool auto_destroy = false);
+        const VmaMemoryUsage memory_usage, bool auto_destroy = false);
+  Image(const Device::Ptr device, VkImage  image_handle,
+        const VkExtent3D extent, VkFormat format,
+        VkImageAspectFlags aspectFlags, bool auto_destroy = false);
+  Image(Device::Ptr device, VkImage image_handle, VkImageView image_view,
+          VkExtent3D extent, VkFormat format,
+        VkImageAspectFlags aspectFlags, bool auto_destroy = false);
   ~Image();
   Image() = delete;
-  static VkImageView CreateView(VkImageViewCreateInfo viewInfo,
-                                Device::Ptr device);
+  VkImageView CreateView(VkImageViewCreateInfo viewInfo, Device::Ptr device);
 
   void FillImageData(size_t size, void *pData);
   // 使用barrier修改image格式

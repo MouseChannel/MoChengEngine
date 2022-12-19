@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-12-09 11:31:33
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-12 15:13:31
+ * @LastEditTime: 2022-12-19 19:36:35
  * @FilePath: \MoChengEngine\G_Example\model.cpp
  * @Description: nullptr
  *
@@ -10,6 +10,8 @@
  */
 #pragma once
 #include "model.h"
+#include "FrameWork/Wrapper/Buffer.h"
+#include "FrameWork/Wrapper/Command/CommandBuffer.h"
 #include "vulkan/vulkan_core.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
@@ -54,12 +56,13 @@ void Model::update() {
   glm::mat4 rotateMatrix = glm::mat4(1.0f);
   rotateMatrix = glm::rotate(rotateMatrix, glm::radians(mAngle),
                              glm::vec3(0.0f, 0.0f, 1.0f));
-  // m_Uniform.mModelMatrix = rotateMatrix;
+  m_Uniform.mModelMatrix = rotateMatrix;
 
   mAngle += 0.05f;
 }
 void Model::loadModel(const std::string &path,
-                      const Wrapper::Device::Ptr &device) {
+                      const Wrapper::Device::Ptr &device,
+                      Wrapper::CommandBuffer::Ptr command_buffer) {
   tinyobj::attrib_t attrib;
   std::vector<tinyobj::shape_t> shapes;
   std::vector<tinyobj::material_t> materials;
@@ -73,7 +76,7 @@ void Model::loadModel(const std::string &path,
 
   for (const auto &shape : shapes) {
     for (const auto &index : shape.mesh.indices) {
-      // ��ȡ������λ������
+
       mPositions.push_back(attrib.vertices[3 * index.vertex_index + 0]);
       mPositions.push_back(attrib.vertices[3 * index.vertex_index + 1]);
       mPositions.push_back(attrib.vertices[3 * index.vertex_index + 2]);
@@ -86,22 +89,37 @@ void Model::loadModel(const std::string &path,
   }
   std::cout << mPositions.size() << std::endl;
 
-  mPositionBuffer = Wrapper::Buffer::CreateR(
-      device, mPositions.size() * sizeof(float),
+  mPositionBuffer = Wrapper::Buffer::Create_GPU_Only_Buffer(
+      device, mPositions.data(), mPositions.size() * sizeof(float),
       VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-      VMA_MEMORY_USAGE_GPU_ONLY, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-  mPositionBuffer->Update(mPositions.data(), mPositions.size() * sizeof(float));
+      command_buffer);
 
-  mUVBuffer = Wrapper::Buffer::CreateR(
-      device, mUVs.size() * sizeof(float),
+  //   mPositionBuffer = Wrapper::Buffer::CreateR(
+  //       device, mPositions.size() * sizeof(float),
+  //       VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+  //       VMA_MEMORY_USAGE_GPU_ONLY, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+  //   mPositionBuffer->Update(mPositions.data(), mPositions.size() *
+  //   sizeof(float));
+  mUVBuffer = Wrapper::Buffer::Create_GPU_Only_Buffer(
+      device, mUVs.data(), mUVs.size() * sizeof(float),
       VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-      VMA_MEMORY_USAGE_GPU_ONLY, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-  mUVBuffer->Update(mUVs.data(), mUVs.size() * sizeof(float));
-  mIndexBuffer = Wrapper::Buffer::CreateR(
-      device, mIndexDatas.size() * sizeof(float),
+      command_buffer);
+  //   mUVBuffer = Wrapper::Buffer::CreateR(
+  //       device, mUVs.size() * sizeof(float),
+  //       VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+  //       VMA_MEMORY_USAGE_GPU_ONLY, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+  //   mUVBuffer->Update(mUVs.data(), mUVs.size() * sizeof(float));
+  mIndexBuffer = Wrapper::Buffer::Create_GPU_Only_Buffer(
+      device, mIndexDatas.data(), mIndexDatas.size() * sizeof(float),
       VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-      VMA_MEMORY_USAGE_GPU_ONLY, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-  mIndexBuffer->Update(mIndexDatas.data(), mIndexDatas.size() * sizeof(float));
+      command_buffer);
+
+  //   mIndexBuffer = Wrapper::Buffer::CreateR(
+  //       device, mIndexDatas.size() * sizeof(float),
+  //       VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+  //       VMA_MEMORY_USAGE_GPU_ONLY, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+  //   mIndexBuffer->Update(mIndexDatas.data(), mIndexDatas.size() *
+  //   sizeof(float));
 }
 
 } // namespace MoChengEngine::FrameWork

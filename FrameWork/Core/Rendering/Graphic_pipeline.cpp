@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-22 10:32:45
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-12 12:21:28
+ * @LastEditTime: 2022-12-17 16:22:41
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\Graphic_pipeline.cpp
  * @Description: nullptr
  *
@@ -13,9 +13,9 @@
 namespace MoChengEngine::FrameWork::Core::Rendering {
 GraphicPipeline::GraphicPipeline(
     Wrapper::Device::Ptr device,
-    std::vector<VkVertexInputBindingDescription>  vertexbindindDes,
-    std::vector<VkVertexInputAttributeDescription>  attributeDes,
-    Wrapper::RenderPass::Ptr &renderpass,
+    std::vector<VkVertexInputBindingDescription>& vertexbindindDes,
+    std::vector<VkVertexInputAttributeDescription>& attributeDes,
+    Wrapper::RenderPass::Ptr renderpass,
     VkDescriptorSetLayout &descriptorSet_layout, VkSampleCountFlagBits samples)
     : Wrapper::Pipeline{device} {
   pipeline_state->fill_default();
@@ -53,8 +53,12 @@ void GraphicPipeline::Build_pipeline(
       pipeline_state->Get_renderpass()->Get_handle();
   pipelineCreateInfo.subpass = 0;
 
-  pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
-  pipelineCreateInfo.basePipelineIndex = -1;
+  //   pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
+  //   pipelineCreateInfo.basePipelineIndex = -1;
+  if (m_handle != VK_NULL_HANDLE) {
+    vkDestroyPipeline(m_device->Get_handle(), m_handle, nullptr);
+  }
+
   VK_CHECK_SUCCESS(
       vkCreateGraphicsPipelines(m_device->Get_handle(), VK_NULL_HANDLE, 1,
                                 &pipelineCreateInfo, nullptr, &m_handle),

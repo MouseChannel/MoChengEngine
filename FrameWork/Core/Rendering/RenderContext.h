@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-13 12:34:08
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-13 10:09:08
+ * @LastEditTime: 2022-12-19 19:25:28
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderContext.h
  * @Description: nullptr
  *
@@ -84,12 +84,12 @@ public:
 
   RenderTarget Create_render_target(VkAttachmentDescription attachment_des);
   [[nodiscard]] auto &Get_Render_Pass() { return m_render_pass; }
-  [[nodiscard]] auto &Get_command_queue() { return m_command_queue; }
+  [[nodiscard]] auto  Get_command_queue() { return m_command_queue; }
   [[nodiscard]] auto &Get_swap_chain() { return m_swap_chain; }
   [[nodiscard]] auto &Get_active_frame() {
     return render_frames[active_frame_index];
   }
-  [[nodiscard]] auto Get_active_frame_index() { return active_frame_index; }
+  [[nodiscard]] auto &Get_active_frame_index() { return active_frame_index; }
   [[nodiscard]] auto &Get_frames() { return render_frames; }
   [[nodiscard]] auto request_command_buffer() {
     return Get_active_frame()->request_command_buffer(m_command_queue);

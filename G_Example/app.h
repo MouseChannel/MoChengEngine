@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-08 12:13:24
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-13 16:05:41
+ * @LastEditTime: 2022-12-17 15:42:53
  * @FilePath: \MoChengEngine\G_Example\app.h
  * @Description: nullptr
  *
@@ -21,8 +21,8 @@
 #include "FrameWork/Wrapper/ShaderModule.h"
 #include "FrameWork/Wrapper/WindowSurface.h"
 #include "G_Example/model.h"
-#include <vector>
-
+#include "camera.hpp"
+#define Test1
 namespace MoChengEngine {
 using namespace FrameWork::Wrapper;
 using namespace FrameWork::Core;
@@ -33,7 +33,7 @@ private:
   std::unique_ptr<Rendering::GraphicPipeline> m_pipeline;
   std::unique_ptr<FrameWork::UniformManager> m_uniformManager;
   int m_Width{800};
-  int m_Height{600};
+  int m_Height{800};
   Glfw_Window_my::Ptr m_Window{nullptr};
   FrameWork::Model::Ptr m_model{nullptr};
   Instance::Ptr m_Instance{nullptr};
@@ -41,12 +41,14 @@ private:
   WindowSurface::Ptr m_Surface{nullptr};
   std::vector<CommandBuffer::Ptr> command_buffers;
   // test
-  uint32_t  image_index{0};
-  uint32_t  current_frame{0};
+  uint32_t image_index{0};
+  uint32_t current_frame{0};
   std::vector<Semaphore::Ptr> present_finish_semaphore;
 
   std::vector<Semaphore::Ptr> render_finish_semaphore;
   std::vector<Fence::Ptr> fences;
+  FrameWork::VPMatrices m_VPMatrices;
+  Camera mCamera;
 
 public:
   void Init();
@@ -61,10 +63,12 @@ public:
   void Prepare_shader_module();
   void Prepare_UniformManager();
   void Prepare_Pipeline();
-  void Record(FrameWork::Wrapper::CommandBuffer::Ptr& command_buffer);
+  void Record(FrameWork::Wrapper::CommandBuffer::Ptr &command_buffer,
+              int frame_index);
   void Rendering();
+  void OnMouseMove(double xpos, double ypos);
   App() = default;
-  ~App() = default;
+  ~App() { std::cout << "free app" << std::endl; };
 };
 
 } // namespace MoChengEngine

@@ -1,6 +1,7 @@
 
 #include "Image.h"
 #include "FrameWork/Wrapper/Buffer.h"
+#include "vma/vk_mem_alloc.h"
 #include "vulkan/vulkan_core.h"
 
 #include <assert.h>
@@ -13,9 +14,9 @@ Image::Image(const Device::Ptr device, uint32_t width, uint32_t height,
              const VkSampleCountFlagBits sample,
              const VkMemoryPropertyFlags properties,
              const VkImageAspectFlags aspectFlags,
-             const VmaMemoryUsage memory_usage)
+             const VmaMemoryUsage memory_usage, bool auto_destroy)
     : Resource<VkImage, Image>{device}, m_width{width}, m_height{height},
-      m_format{format}, m_imageType{imageType} {
+      m_format{format}, m_imageType{imageType}, auto_destroy{auto_destroy} {
   VkImageCreateInfo imageCreateInfo{};
   imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
   imageCreateInfo.extent = VkExtent3D{width, height, 1};
@@ -30,6 +31,7 @@ Image::Image(const Device::Ptr device, uint32_t width, uint32_t height,
   imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
   imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
+#ifdef Using_VMA
   // create image in vma
 
   VmaAllocationCreateInfo memory_info{};
@@ -38,14 +40,14 @@ Image::Image(const Device::Ptr device, uint32_t width, uint32_t height,
   if (image_usage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) {
     memory_info.preferredFlags = VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
   }
-  /*
-
-  VK_CHECK_SUCCESS(vmaCreateImage(m_device->Get_allocator(),
-                                  &imageCreateInfo,
+  VmaAllocationInfo allocation_info{};
+  VK_CHECK_SUCCESS(vmaCreateImage(m_device->Get_allocator(), &imageCreateInfo,
                                   &memory_info, &m_handle, &allocation,
-                                  nullptr),
+                                  &allocation_info),
                    "Create image failed");
-  */
+  m_ImageMemory = allocation_info.deviceMemory;
+#else
+
   VK_CHECK_SUCCESS(vkCreateImage(m_device->Get_handle(), &imageCreateInfo,
                                  nullptr, &m_handle),
                    "create image failed");
@@ -66,25 +68,78 @@ Image::Image(const Device::Ptr device, uint32_t width, uint32_t height,
   }
 
   vkBindImageMemory(m_device->Get_handle(), m_handle, m_ImageMemory, 0);
+#endif
+  VkImageViewCreateInfo imageViewCreateInfo{};
+  imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+  imageViewCreateInfo.format = format;
+  imageViewCreateInfo.image = m_handle;
+  imageViewCreateInfo.subresourceRange.aspectMask = aspectFlags;
+  imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+  imageViewCreateInfo.subresourceRange.levelCount = 1;
+  imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+  imageViewCreateInfo.subresourceRange.layerCount = 1;
 
-  m_view = CreateView(Make_View_Info(aspectFlags), m_device);
+  if (vkCreateImageView(m_device->Get_handle(), &imageViewCreateInfo, nullptr,
+                        &m_view) != VK_SUCCESS) {
+    throw std::runtime_error("Error: failed to create image view");
+  }
+  //   m_view = CreateView(Make_View_Info(aspectFlags), m_device);
 }
-Image::Image(const Device::Ptr device, VkImage image_handle,
-             const VkExtent3D extent, VkFormat format, bool auto_destroy)
+Image::Image(const Device::Ptr device, VkImage  image_handle,
+             const VkExtent3D extent, VkFormat format,
+             VkImageAspectFlags aspectFlags, bool auto_destroy)
     : Resource<VkImage, Image>{device}, m_extent{extent},
       m_format(format), m_width{extent.width}, m_height{extent.height},
       m_imageType{VK_IMAGE_TYPE_2D}, auto_destroy(auto_destroy) {
   m_handle = image_handle;
-  m_view = CreateView(Make_View_Info(VK_IMAGE_ASPECT_COLOR_BIT), m_device);
+
+  VkImageViewCreateInfo imageViewCreateInfo{};
+  imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+  imageViewCreateInfo.format = format;
+  imageViewCreateInfo.image = m_handle;
+  imageViewCreateInfo.subresourceRange.aspectMask = aspectFlags;
+  imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+  imageViewCreateInfo.subresourceRange.levelCount = 1;
+  imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+  imageViewCreateInfo.subresourceRange.layerCount = 1;
+
+  if (vkCreateImageView(m_device->Get_handle(), &imageViewCreateInfo, nullptr,
+                        &m_view) != VK_SUCCESS) {
+    throw std::runtime_error("Error: failed to create image view");
+  }
+  //   m_view = CreateView(Make_View_Info(VK_IMAGE_ASPECT_COLOR_BIT), m_device);
+}
+Image::Image(Device::Ptr device, VkImage image_handle, VkImageView image_view,
+             VkExtent3D extent, VkFormat format, VkImageAspectFlags aspectFlags,
+             bool auto_destroy)
+    : Resource<VkImage, Image>{device}, m_extent{extent},
+      m_format(format), m_width{extent.width}, m_height{extent.height},
+      m_imageType{VK_IMAGE_TYPE_2D}, auto_destroy(auto_destroy) {
+  m_handle = image_handle;
+  m_view = image_view;
 }
 Image::~Image() {
+
   if (m_view != nullptr) {
     vkDestroyImageView(m_device->Get_handle(), m_view, nullptr);
   }
-  if (!auto_destroy) {
+  if (auto_destroy)
+    return;
+#ifdef Using_VMA
+  vmaDestroyImage(m_device->Get_allocator(), m_handle, allocation);
 
-    vmaDestroyImage(m_device->Get_allocator(), m_handle, allocation);
+#else
+
+  if (m_ImageMemory != VK_NULL_HANDLE) {
+    vkFreeMemory(m_device->Get_handle(), m_ImageMemory, nullptr);
   }
+
+  if (m_handle != VK_NULL_HANDLE) {
+    vkDestroyImage(m_device->Get_handle(), m_handle, nullptr);
+  }
+#endif
 }
 /*
 void Image::Bind_Image_Memory(const VkMemoryPropertyFlags properties) {
@@ -190,19 +245,6 @@ void Image::SetImageLayout(VkImageLayout newLayout,
   m_layout = newLayout;
   commandBuffer->TransferImageLayout(imageMemoryBarrier, srcStageMask,
                                      dstStageMask);
-
-  //   return [=]() {
-  //     commandBuffer->TransferImageLayout(imageMemoryBarrier, srcStageMask,
-  //                                        dstStageMask);
-  //   };
-}
-VkImageView Image::CreateView(VkImageViewCreateInfo viewInfo,
-                              Device::Ptr device) {
-  VkImageView res{VK_NULL_HANDLE};
-  VK_CHECK_SUCCESS(
-      vkCreateImageView(device->Get_handle(), &viewInfo, nullptr, &res),
-      "Error: failed to create image view");
-  return res;
 }
 
 } // namespace MoChengEngine::FrameWork::Wrapper

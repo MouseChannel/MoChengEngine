@@ -44,7 +44,7 @@ public:
   ~RenderFrame();
   void Prepare(Wrapper::RenderPass::Ptr render_pass,
     std::vector<std::unique_ptr<RenderTarget>> &&renderTarget);
-  void Prepare_frame_buffers(Wrapper::RenderPass::Ptr render_pass);
+  void Prepare_frame_buffer(Wrapper::RenderPass::Ptr render_pass);
   Wrapper::CommandBuffer::Ptr
   request_command_buffer(Wrapper::CommandQueue::Ptr command_queue);
   [[nodiscard]] auto &Get_Render_Target() { return m_swapchain_render_targets; }

@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-13 12:34:10
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-13 15:36:00
+ * @LastEditTime: 2022-12-19 12:57:20
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\RenderContext.cpp
  * @Description: nullptr
  *
@@ -29,6 +29,7 @@
 #include "vulkan/vulkan_core.h"
 #include <algorithm>
 #include <memory>
+#include <stdint.h>
 #include <vector>
 namespace MoChengEngine::FrameWork::Core::Rendering {
 RenderContext::RenderContext(Wrapper::Device::Ptr device,
@@ -38,42 +39,56 @@ RenderContext::RenderContext(Wrapper::Device::Ptr device,
       m_command_queue{m_device->Get_suitable_graphics_queue()} {
   m_swap_chain = Wrapper::SwapChain::Create(m_device, surface);
 }
-RenderContext::~RenderContext() {}
+RenderContext::~RenderContext() {
+  std::cout << "free render context" << std::endl;
+}
 void RenderContext::Prepare() {
 
   // make render_targets and fill render_frames
-
   for (auto i = 0; i < m_swap_chain->Get_image_count(); i++) {
 
     render_frames.emplace_back(std::make_unique<RenderFrame>(m_device));
+    auto &current_render_frame = render_frames.back();
     // make a  temp command_buffer
     auto command_buffer =
-        render_frames.back()->request_command_buffer(m_command_queue);
-    command_buffer->Begin();
-    std::vector<std::unique_ptr<RenderTarget>> current_frame_render_targets;
-   
+        current_render_frame->request_command_buffer(m_command_queue);
 
+    std::vector<std::unique_ptr<RenderTarget>> current_frame_render_targets;
+
+    command_buffer->Begin();
+    //
+    auto aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+    auto destroy = true;
+
+    VkExtent3D extent = {m_swap_chain->Get_extent2D().width,
+                         m_swap_chain->Get_extent2D().height, 1};
+    auto format = m_swap_chain->Get_format();
+    // auto image_p = std::make_shared<Wrapper::Image>(
+    //     m_device, image_handle, image_view, extent, format, aspect, destroy);
+    // auto image_p = Wrapper::Image::Create(m_device,
+    // m_swap_chain->Get_Image_Handles()[i], m_swap_chain->Get_images_view()[i],
+    //                                       extent, m_swap_chain->Get_format(),
+    //                                       aspect, destroy);
+    //
     current_frame_render_targets.emplace_back(
         Final_RenderTarget::DEFAULT_FINAL_CREATE_FUNC(
             m_swap_chain->Get_images()[i], command_buffer));
- 
 
     current_frame_render_targets.emplace_back(
         Muti_Sampler_RenderTarget::DEFAULT_MUTI_CREATE_FUNC(
             Muti_Sampler_RenderTarget::DEFAULT_IMAGE_CREATE_FUNC(m_swap_chain),
             command_buffer));
- 
 
-    current_frame_render_targets.push_back(
+    current_frame_render_targets.emplace_back(
         Depth_RenderTarget::DEFAULT_DEPTH_CREATE_FUNC(
             Depth_RenderTarget::DEFAULT_IMAGE_CREATE_FUNC(m_swap_chain),
             command_buffer));
- 
+
     command_buffer->Wait(m_command_queue);
 
     Prepare_RenderPass(current_frame_render_targets);
 
-    render_frames.back()->Prepare(m_render_pass,
+    current_render_frame->Prepare(m_render_pass,
                                   std::move(current_frame_render_targets));
   }
 }
@@ -125,6 +140,7 @@ void RenderContext::Begin_frame() {
       prev_frame->Get_present_finish_semaphore();
   current_frame_render_finish_semaphore =
       prev_frame->Get_render_finish_semaphore();
+
   auto res = m_swap_chain->Acquire_next_image(
       active_frame_index, current_frame_present_finish_semaphore->Get_handle(),
       nullptr);
@@ -158,11 +174,10 @@ void RenderContext::Submit(
       &current_frame_render_finish_semaphore->Get_handle();
 
   m_command_queue->Submit({submitInfo}, fence);
-
   End_frame(current_frame_render_finish_semaphore->Get_handle());
 }
 void RenderContext::End_frame(VkSemaphore &submit_finish_semaphone) {
-  VkPresentInfoKHR present_info;
+  VkPresentInfoKHR present_info{};
   present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
   present_info.waitSemaphoreCount = 1;

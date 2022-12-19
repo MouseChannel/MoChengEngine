@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-21 17:38:49
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-12 11:36:38
+ * @LastEditTime: 2022-12-17 16:11:01
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Pipeline\Pipeline_state.cpp
  * @Description: nullptr
  *
@@ -103,7 +103,7 @@ void PipelineState::Make_BlendState_Info() {
   m_BlendState.pAttachments = m_BlendAttachments.data();
 }
 
-void PipelineState::Make_LayoutCreate_Info(VkDescriptorSetLayout &layout) {
+void PipelineState::Make_LayoutCreate_Info(VkDescriptorSetLayout  &layout) {
   m_LayoutState.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
   m_LayoutState.setLayoutCount = 1;
   m_LayoutState.pSetLayouts = &layout;
@@ -125,8 +125,8 @@ void PipelineState::Make_DepthStecil_Info() {
   m_DepthStencilState.depthWriteEnable = VK_TRUE;
   m_DepthStencilState.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 }
-void PipelineState::Set_renderpass(RenderPass::Ptr &renderpass) {
-  m_renderpass = std::forward<RenderPass::Ptr>(renderpass);
+void PipelineState::Set_renderpass(RenderPass::Ptr  renderpass) {
+  m_renderpass =  renderpass ;
 }
 void PipelineState::fill_default() {
   Make_AssemblyInput_Info();

@@ -2,21 +2,22 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-18 10:14:18
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-10 14:47:56
+ * @LastEditTime: 2022-12-19 13:02:20
  * @FilePath: \MoChengEngine\FrameWork\Core\ObjectPool.hpp
  * @Description: nullptr
  *
  * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
  */
 #pragma once
+#include "FrameWork/Wrapper/Command/CommandBuffer.h"
+#include "FrameWork/Wrapper/Command/CommandPool.h"
 #include <functional>
 #include <map>
 #include <memory>
 #include <stdexcept>
 #include <utility>
 #include <vector>
-#include "FrameWork/Wrapper/Command/CommandPool.h"
-#include "FrameWork/Wrapper/Command/CommandBuffer.h"
+
 
 namespace MoChengEngine::FrameWork::Core {
 template <typename Object> class ObjectPool {
@@ -46,7 +47,7 @@ public:
 
     return objects[family_index][object_index++];
   }
+  ~ObjectPool() { std::cout << "free object pool" << std::endl; }
 };
-auto default_command_buffer_create_func = [ ](Wrapper::Device::Ptr device, Wrapper::CommandPool::Ptr command_pool)
-                                       { return Wrapper::CommandBuffer::Create(device, command_pool); };
+
 } // namespace MoChengEngine::FrameWork::Core

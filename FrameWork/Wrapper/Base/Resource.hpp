@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-14 10:01:38
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-09 12:01:42
+ * @LastEditTime: 2022-12-17 12:16:31
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Base\Resource.hpp
  * @Description: nullptr
  *
@@ -17,9 +17,9 @@ namespace MoChengEngine::FrameWork::Wrapper {
 template <typename T, typename K> class Resource : public Component<T, K> {
 public:
   Resource<T, K>(Device::Ptr device) : Component<T, K>{device} {}
-  ~Resource<T, K>() = default;
+ 
 
 protected:
-  VmaAllocation allocation ;
+  VmaAllocation allocation{} ;
 };
 } // namespace MoChengEngine::FrameWork::Wrapper

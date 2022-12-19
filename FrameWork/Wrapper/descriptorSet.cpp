@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-19 16:36:23
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-11 10:16:40
+ * @LastEditTime: 2022-12-17 13:59:20
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\descriptorSet.cpp
  * @Description: nullptr
  *
@@ -45,9 +45,8 @@ DescriptorSet::DescriptorSet(Device::Ptr device,
 
       if (param->mDescriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
         auto buffer = param->m_Buffers[i];
-        VkDescriptorBufferInfo descriptorBufferInfo{
-            buffer->Get_handle(), buffer->Get_Buffer_info().offset,
-            buffer->Get_Buffer_info().range};
+        VkDescriptorBufferInfo descriptorBufferInfo{buffer->Get_handle(), 0,
+                                                    buffer->Get_size()};
 
         // descriptorSetWrite.pBufferInfo = buffer.
         descriptorSetWrite.pBufferInfo = &descriptorBufferInfo;

@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-29 18:50:26
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-13 13:21:44
+ * @LastEditTime: 2022-12-19 13:47:36
  * @FilePath: \MoChengEngine\FrameWork\Core\Texture\Texture.cpp
  * @Description: nullptr
  *
@@ -26,8 +26,8 @@ Texture::Texture(Wrapper::Device::Ptr device, COMMAND command,
   }
 
   texSize = texWidth * texHeight * 4;
-  VkExtent3D extent{.height = static_cast<uint32_t>(texHeight),
-                    .width = static_cast<uint32_t>(texWidth),
+  VkExtent3D extent{
+                    .width = static_cast<uint32_t>(texWidth),.height = static_cast<uint32_t>(texHeight),
                     .depth = 1};
   mImage = Wrapper::Image::CreateR(
       device, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight),
@@ -45,31 +45,29 @@ Texture::Texture(Wrapper::Device::Ptr device, COMMAND command,
   region.baseMipLevel = 0;
   region.levelCount = 1;
   auto command_buffer = command.request_command_buffer();
-  // convert image_layout to TRANSFER_DST to wait data arrive
-  //   auto set_image_layout_task =
-
+//   convert image_layout to TRANSFER_DST to wait data arrive
+ 
   command_buffer->Begin();
-  //   command_buffer->Add_Task(set_image_layout_task);
+ 
   mImage->SetImageLayout(
       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_PIPELINE_STAGE_TRANSFER_BIT,
       VK_PIPELINE_STAGE_TRANSFER_BIT, region, command_buffer);
   command_buffer->Wait(command.queue);
-  // fill image data
+//   fill image data
   auto image_buffer = Wrapper::Buffer::Create_Image_buffer(device, texSize);
-  //   auto fill_image_data_task = mImage->FillImageData(
-  //       texSize, (void *)pixels, image_buffer, command_buffer);
+ 
   command_buffer->Begin();
   mImage->FillImageData(texSize, (void *)pixels, image_buffer, command_buffer);
-  //   command_buffer->Add_Task(fill_image_data_task);
+ 
 
   command_buffer->Wait(command.queue);
-  // convert image_layout to read_only
-  //   set_image_layout_task =
+//   convert image_layout to read_only
+ 
   command_buffer->Begin();
   mImage->SetImageLayout(
       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_PIPELINE_STAGE_TRANSFER_BIT,
       VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, region, command_buffer);
-  //   command_buffer->Add_Task(set_image_layout_task);
+ 
   command_buffer->Wait(command.queue);
 
   stbi_image_free(pixels);

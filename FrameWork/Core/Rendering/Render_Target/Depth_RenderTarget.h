@@ -2,22 +2,8 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-21 10:59:50
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-13 15:33:51
+ * @LastEditTime: 2022-12-17 18:34:14
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Depth_RenderTarget.h
- * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Depth_RenderTarget.h
- * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Depth_RenderTarget.h
- * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Depth_RenderTarget.h
- * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Depth_RenderTarget.h
- * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Depth_RenderTarget.h
- * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Depth_RenderTarget.h
- * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Depth_RenderTarget.h
- * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Depth_RenderTarget.h
- * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Depth_RenderTarget.h
- * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Depth_RenderTarget.h
- * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Depth_RenderTarget.h
- * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Depth_RenderTarget.h
- * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Depth_RenderTarget.h
- * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Depth_RenderTarget.h
  * @Description: nullptr
  *
  * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
@@ -123,7 +109,7 @@ void
   }
   [[nodiscard]] VkAttachmentReference
   Get_Attachement_Reference(int index) override {
-    VkAttachmentReference finalAttachmentRef;
+    VkAttachmentReference finalAttachmentRef{};
     finalAttachmentRef.attachment = index;
     finalAttachmentRef.layout =
         VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;

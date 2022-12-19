@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:57:25
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-13 12:50:21
+ * @LastEditTime: 2022-12-14 11:38:42
  * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.cpp
  * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.cpp
  * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.cpp
@@ -45,7 +45,7 @@ namespace MoChengEngine::FrameWork::Core::Rendering
     {
         for (auto format : candidates)
         {
-            VkFormatProperties props;
+            VkFormatProperties props{};
 
             vkGetPhysicalDeviceFormatProperties(device->Get_gpu()->Get_handle(), format,
                                                 &props);

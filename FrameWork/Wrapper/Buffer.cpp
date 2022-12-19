@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-14 11:30:30
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-11 10:00:01
+ * @LastEditTime: 2022-12-19 18:51:29
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Buffer.cpp
  * @Description: nullptr
  *
@@ -13,10 +13,10 @@
 
 namespace MoChengEngine::FrameWork::Wrapper {
 Buffer::Buffer(Device::Ptr device, VkDeviceSize size,
-               VkBufferUsageFlags buffer_usage, VmaMemoryUsage memory_usage,
+               VkBufferUsageFlags buffer_usage, VmaMemoryUsage mem_usage,
                VkMemoryPropertyFlags properties, VmaAllocationCreateFlags flags,
                const std::vector<uint32_t> &queue_family_indices)
-    : Resource<VkBuffer, Buffer>{device} {
+    : Resource<VkBuffer, Buffer>{device}, size{size} {
 
   VkBufferCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -34,7 +34,7 @@ Buffer::Buffer(Device::Ptr device, VkDeviceSize size,
 
   VmaAllocationCreateInfo memory_info{};
   memory_info.flags = flags;
-  memory_info.usage = memory_usage;
+  memory_info.usage = mem_usage;
 
 #ifdef Using_VMA
   VK_CHECK_SUCCESS(vmaCreateBuffer(device->Get_allocator(), &createInfo,
@@ -42,8 +42,9 @@ Buffer::Buffer(Device::Ptr device, VkDeviceSize size,
                                    &allocation_info),
                    "fail to create buffer");
 
+   
   if (persistent) {
-    mapped_data = static_cast<uint8_t *>(allocation_info.pMappedData);
+    mapped_data = allocation_info.pMappedData;
   }
 
 #else
@@ -103,10 +104,11 @@ void Buffer::Map(size_t size, size_t offset) {
 #ifdef Using_VMA
   if (!mapped && !mapped_data) {
     VK_CHECK_SUCCESS(vmaMapMemory(m_device->Get_allocator(), allocation,
-                                  reinterpret_cast<void **>(&mapped_data)),
+                                    &mapped_data ),
                      "map data failed");
+    mapped = true;
   }
-  return mapped_data;
+
 #else
 
   vkMapMemory(m_device->Get_handle(), mBufferMemory, offset, size, 0,
@@ -128,8 +130,9 @@ void Buffer::UnMap() {
 }
 
 void Buffer::Flush() {
-  vmaFlushAllocation(m_device->Get_allocator(), allocation, 0,
-                     allocation_info.size);
+  VK_CHECK_SUCCESS(vmaFlushAllocation(m_device->Get_allocator(), allocation, 0,
+                                       size),
+                   "VMA_Flush failed");
 }
 void Buffer::Update(void *d, size_t size, size_t offset) {
   if (d == nullptr)
@@ -138,17 +141,19 @@ void Buffer::Update(void *d, size_t size, size_t offset) {
 #ifdef Using_VMA
 
   if (persistent) {
-    std::copy(data, data + size, mapped_data + offset);
+    memcpy(mapped_data, d, size);
+    // std::copy(data, data + size, mapped_data );
     Flush();
   } else {
-    Map();
-    std::copy(data, data + size, mapped_data + offset);
+    Map(size, offset);
+    memcpy(mapped_data, d, size);
+    // std::copy(data, data + size, mapped_data  );
     Flush();
     UnMap();
   }
 #else
   Map(size, offset);
-  memcpy(mapped_data, data, size);
+  memcpy(mapped_data, d, size);
   // std::copy(data, data + size,  mapped_data + offset);
   UnMap();
 
@@ -158,7 +163,25 @@ void Buffer::Update(void *d, size_t size, size_t offset) {
 Buffer::Ptr Buffer::Create_Image_buffer(Device::Ptr device, size_t size) {
   return Buffer::CreateR(device, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                          VMA_MEMORY_USAGE_CPU_TO_GPU,
-                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+}
+Buffer::Ptr Buffer::Create_GPU_Only_Buffer(Device::Ptr device, void *data,
+                                           VkDeviceSize size,
+                                           VkBufferUsageFlags buffer_usage,
+                                           CommandBuffer::Ptr command_Buffer) {
+
+  auto host_visiable_buffer = Buffer::CreateR(
+      device, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+      VMA_MEMORY_USAGE_CPU_TO_GPU, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+  auto dst_buffer =
+      Buffer::CreateR(device, size, buffer_usage, VMA_MEMORY_USAGE_GPU_ONLY,
+                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+  if (data != nullptr) {
+    host_visiable_buffer->Update(data, size);
+    command_Buffer->CopyBufferToBuffer(host_visiable_buffer->Get_handle(),
+                                       dst_buffer->Get_handle(), size);
+  }
+
+  return dst_buffer;
 }
 } // namespace MoChengEngine::FrameWork::Wrapper

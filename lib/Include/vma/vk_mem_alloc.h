@@ -1243,7 +1243,7 @@ typedef struct VmaAllocationCreateInfo
     Value 0 is equivalent to `UINT32_MAX` - it means any memory type is accepted if
     it meets other requirements specified by this structure, with no further
     restrictions on memory type index. \n
-    If `pool` is not null, this member is ignored.
+    If `pool` is not null, this member is i gnored.
     */
     uint32_t memoryTypeBits;
     /** \brief Pool that this allocation should be created in.

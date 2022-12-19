@@ -2,8 +2,8 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 16:56:50
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-13 15:33:39
- * @FilePath:
+ * @LastEditTime: 2022-12-16 10:34:08
+ * @FilePath: \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.h
  * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.h
  * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.h
  * \MoChengEngine\FrameWork\Core\Rendering\Render_Target\Render_target_base.h
@@ -42,11 +42,11 @@ namespace MoChengEngine::FrameWork::Core::Rendering {
 class RenderTarget {
 protected:
   VkExtent2D extent{0, 0};
-  Wrapper::Image::Ptr image_ptr;
-  VkImage image;
+  Wrapper::Image::Ptr image_ptr{};
+  VkImage image{};
   VkImageView image_view{nullptr};
 
-  VkAttachmentDescription attachment_description;
+  VkAttachmentDescription attachment_description{};
 
 public:
   /**

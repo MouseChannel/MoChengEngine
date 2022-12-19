@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-21 17:37:57
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-12 12:23:41
+ * @LastEditTime: 2022-12-17 17:12:40
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Pipeline\Pipeline_state.h
  * @Description: nullptr
  *
@@ -48,11 +48,11 @@ public:
   VkPipelineDepthStencilStateCreateInfo m_DepthStencilState{};
   void Make_DepthStecil_Info();
   VkPipelineLayoutCreateInfo m_LayoutState{};
-  void Make_LayoutCreate_Info(VkDescriptorSetLayout &layout);
+  void Make_LayoutCreate_Info(VkDescriptorSetLayout  &layout);
   void Set_Viewports_and_Scissors(const std::vector<VkViewport> &viewports,
                                   const std::vector<VkRect2D> &scissors);
   RenderPass::Ptr m_renderpass{nullptr};
-  void Set_renderpass(RenderPass::Ptr &renderpass);
+  void Set_renderpass(RenderPass::Ptr  renderpass);
 
 public:
   PipelineState();

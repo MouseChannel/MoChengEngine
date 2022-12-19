@@ -2,7 +2,7 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 14:36:52
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-13 14:05:02
+ * @LastEditTime: 2022-12-17 10:53:39
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Command\CommandBuffer.h
  * @Description: nullptr
  *
@@ -27,12 +27,12 @@ private:
   Fence::Ptr m_fence{nullptr};
 
 public:
-using Command_Buffer_Task = std::function<void()>;
+  using Command_Buffer_Task = std::function<void()>;
   enum { primary = 0, second = 1 };
   CommandBuffer(Device::Ptr device, CommandPool::Ptr commandPool,
                 bool asSecondary = false);
   ~CommandBuffer();
-   void Add_Task( Command_Buffer_Task task);
+  void Add_Task(Command_Buffer_Task task);
   static void Wait_All(CommandQueue::Ptr command_queue,
                        std::vector<CommandBuffer::Ptr> command_buffers);
   void Wait(CommandQueue::Ptr command_queue);
@@ -49,13 +49,14 @@ using Command_Buffer_Task = std::function<void()>;
                          const VkDescriptorSet &descriptorSet);
   void BindIndexBuffer(const VkBuffer &buffer);
   void DrawIndex(size_t indexCount);
-  void CopyBufferToBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer,
-                          uint32_t copyInfoCount,
-                          const std::vector<VkBufferCopy> &copyInfos);
+  void Draw(size_t indexcount);
+  void CopyBufferToBuffer(VkBuffer src_buffer, VkBuffer dst_buffer,
+                          VkDeviceSize size);
   void CopyBufferToImage(VkBuffer srcBuffer, VkImage dstImage,
                          VkImageLayout dstImageLayout, uint32_t width,
                          uint32_t height);
-  void TransferImageLayout(VkImageMemoryBarrier  imageMemoryBarrier,
+ 
+  void TransferImageLayout(VkImageMemoryBarrier imageMemoryBarrier,
                            VkPipelineStageFlags srcStageMask,
                            VkPipelineStageFlags dstStageMask);
   void Set_Fence(Fence::Ptr fence) { m_fence = fence; }
@@ -66,6 +67,5 @@ struct COMMAND {
   std::function<Wrapper::CommandBuffer::Ptr()> request_command_buffer;
   Wrapper::CommandQueue::Ptr queue;
 };
-
 
 } // namespace MoChengEngine::FrameWork

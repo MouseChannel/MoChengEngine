@@ -3,20 +3,19 @@
  * @Author: mousechannel mochenghh@gmail.com
  * @Date: 2022-11-12 10:15:15
  * @LastEditors: mousechannel mochenghh@gmail.com
- * @LastEditTime: 2022-12-01 11:22:24
+ * @LastEditTime: 2022-12-19 15:06:09
  * @FilePath: \MoChengEngine\FrameWork\Wrapper\Device.cpp
  * @Description: nullptr
  *
  * Copyright (c) 2022 by mousechannel mochenghh@gmail.com, All Rights Reserved.
  */
 
- 
-
 // #define VMA_IMPLEMENTATION
 #include "Device.h"
 #include "FrameWork/Wrapper/Command/CommandPool.h"
 // #include "vma/vk_mem_alloc.h"
 
+#include "FrameWork/Base/vmaExporter.cpp"
 #include "FrameWork/Wrapper/Command/CommandQueue.h"
 #include "FrameWork/Wrapper/Device.h"
 #include "FrameWork/Wrapper/Instance/Instance.h"
@@ -24,7 +23,7 @@
 #include "vulkan/vulkan_core.h"
 #include <memory>
 #include <stdexcept>
-#include "FrameWork/Base/vmaExporter.cpp"
+
 // #include "vma/vk_mem_alloc.h"
 namespace MoChengEngine::FrameWork::Wrapper {
 
@@ -71,7 +70,7 @@ Device::Device(Instance::Ptr instance, PhysicalDevice::Ptr gpu,
   //   } else {
   //     deviceCreateInfo.enabledLayerCount = 0;
   //   }
-  deviceCreateInfo.enabledLayerCount = 0;
+  //   deviceCreateInfo.enabledLayerCount = 0;
 
   VK_CHECK_SUCCESS(vkCreateDevice(m_gpu->Get_handle(), &deviceCreateInfo,
                                   nullptr, &m_handle),
@@ -80,60 +79,46 @@ Device::Device(Instance::Ptr instance, PhysicalDevice::Ptr gpu,
   CreateAllocator();
   FillCommandQueues();
 }
-Device::~Device() { vkDestroyDevice(m_handle, nullptr); }
-void Device::CreateAllocator() {
-  //   VmaVulkanFunctions vma_vulkan_func ;
-  //   vma_vulkan_func.vkAllocateMemory = &vkAllocateMemory;
-  //   vma_vulkan_func.vkBindBufferMemory = &vkBindBufferMemory;
-  //   vma_vulkan_func.vkBindImageMemory = &vkBindImageMemory;
-  //   vma_vulkan_func.vkCreateBuffer = &vkCreateBuffer;
-  //   vma_vulkan_func.vkCreateImage = &vkCreateImage;
-  //   vma_vulkan_func.vkDestroyBuffer = &vkDestroyBuffer;
-  //   vma_vulkan_func.vkDestroyImage = &vkDestroyImage;
-  //   vma_vulkan_func.vkFlushMappedMemoryRanges = &vkFlushMappedMemoryRanges;
-  //   vma_vulkan_func.vkFreeMemory = &vkFreeMemory;
-  //   vma_vulkan_func.vkGetBufferMemoryRequirements =
-  //       &vkGetBufferMemoryRequirements;
-  //   vma_vulkan_func.vkGetImageMemoryRequirements =
-  //   &vkGetImageMemoryRequirements;
-  //   vma_vulkan_func.vkGetPhysicalDeviceMemoryProperties =
-  //       &vkGetPhysicalDeviceMemoryProperties;
-  //   vma_vulkan_func.vkGetPhysicalDeviceProperties =
-  //       &vkGetPhysicalDeviceProperties;
-  //   vma_vulkan_func.vkInvalidateMappedMemoryRanges =
-  //       &vkInvalidateMappedMemoryRanges;
-  //   vma_vulkan_func.vkMapMemory = &vkMapMemory;
-  //   vma_vulkan_func.vkUnmapMemory = &vkUnmapMemory;
-  //   vma_vulkan_func.vkCmdCopyBuffer = &vkCmdCopyBuffer;
+Device::~Device() {
 
-  VmaAllocatorCreateInfo createInfo;
-  createInfo.vulkanApiVersion = VK_API_VERSION_1_3;
+#ifdef Using_VMA
+  vmaDestroyAllocator(allocator);
+#endif // DEBUG
+
+  std::cout << "free device" << std::endl;
+  vkDestroyDevice(m_handle, nullptr);
+}
+void Device::CreateAllocator() {
+
+  VmaAllocatorCreateInfo createInfo{};
+
   createInfo.physicalDevice = m_gpu->Get_handle();
   createInfo.device = Get_handle();
   createInfo.instance = m_instance->Get_handle();
-  createInfo.pVulkanFunctions = nullptr;
-  createInfo.pAllocationCallbacks = nullptr;
 
-  vmaCreateAllocator(&createInfo, &allocator);
+  VK_CHECK_SUCCESS(vmaCreateAllocator(&createInfo, &allocator),
+                   "Create vma allocator failed");
 }
 std::vector<VkDeviceQueueCreateInfo> Device::MakeCommandQueueCreateInfo() {
+
   auto queueFamilies = m_gpu->Get_queueFamilies();
   auto queue_family_properties_count = queueFamilies.size();
-  std::vector<VkDeviceQueueCreateInfo> queueCreateInfos(
-      queue_family_properties_count);
+  std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
   std::vector<std::vector<float>> queue_priorities(
       queue_family_properties_count);
+  queuePriority.resize(queue_family_properties_count, 1.0);
   for (int family_index = 0; family_index < queue_family_properties_count;
        family_index++) {
     auto &current_family = queueFamilies[family_index];
     auto current_queue_count = current_family.queueCount;
     // queue_priorities[family_index].resize(current_queue_count, 1.0f);
-    float queuePriority = 1.0;
-    auto &queue_create_info = queueCreateInfos[family_index];
+    VkDeviceQueueCreateInfo queue_create_info{};
+
     queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queue_create_info.queueFamilyIndex = family_index;
     queue_create_info.queueCount = current_queue_count;
-    queue_create_info.pQueuePriorities = &queuePriority;
+    queue_create_info.pQueuePriorities = queuePriority.data();
+    queueCreateInfos.push_back(queue_create_info);
     // queue_priorities[family_index].data();
   }
   return queueCreateInfos;
@@ -178,7 +163,7 @@ CommandQueue::Ptr Device::Get_queue_by_flag(VkQueueFlags required_queue_flags,
   throw std::runtime_error("Failed to get queue");
 }
 VkSampleCountFlagBits Device::getMaxUsableSampleCount() {
-  VkSampleCountFlagBits res;
+  VkSampleCountFlagBits res{};
   getMaxUsableSampleCount(res);
   return res;
 }
